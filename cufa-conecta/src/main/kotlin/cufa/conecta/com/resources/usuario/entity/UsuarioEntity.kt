@@ -16,7 +16,7 @@ data class UsuarioEntity(
     val nome: String,
     val email: String,
     val senha: String,
-    val cpf: String ,
+    val cpf: String ?= null,
     val telefone: String? = null,
     val escolaridade: String? = null,
     @Column(name = "dt_nascimento")

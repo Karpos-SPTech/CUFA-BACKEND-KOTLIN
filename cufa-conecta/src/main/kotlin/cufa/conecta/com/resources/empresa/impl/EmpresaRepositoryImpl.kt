@@ -3,6 +3,7 @@ package cufa.conecta.com.resources.empresa.impl
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
 import cufa.conecta.com.config.GerenciadorTokenJwt
 import cufa.conecta.com.model.data.Empresa
+import cufa.conecta.com.model.data.result.EmpresaResult
 import cufa.conecta.com.resources.empresa.EmpresaRepository
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.entity.EmpresaEntity
@@ -13,12 +14,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class EmpresaRepositoryImpl (
+    private val dao: EmpresaDao,
     private val gerenciadorTokenJwt : GerenciadorTokenJwt,
-    private val authenticationManager : AuthenticationManager,
-    private val empresaDao: EmpresaDao
+    private val authenticationManager : AuthenticationManager
 ): EmpresaRepository {
 
     override fun cadastrarEmpresa(data: Empresa) {
@@ -38,7 +38,7 @@ class EmpresaRepositoryImpl (
             dtCadastro = LocalDate.now()
         )
 
-        empresaDao.save(empresaEntity)
+        dao.save(empresaEntity)
     }
 
     override fun autenticar(dadosLogin: Empresa): EmpresaTokenDto {
@@ -67,9 +67,13 @@ class EmpresaRepositoryImpl (
         )
     }
 
-    override fun listarTodos(): List<EmpresaEntity> = empresaDao.findAll()
+    override fun listarTodos(): List<EmpresaEntity> = dao.findAll()
 
-    override fun buscarPorId(id: Long): EmpresaEntity = buscarEmpresaPorId(id)
+    override fun mostrarDados(id: Long): EmpresaResult {
+        val empresaEntity = buscarEmpresaPorId(id)
+
+        return mapearEmpresa(empresaEntity)
+    }
 
     override fun atualizarDados(data: Empresa) {
         buscarEmpresaPorId(data.id!!)
@@ -87,10 +91,10 @@ class EmpresaRepositoryImpl (
             area = data.area
         )
 
-        empresaDao.save(empresaAtualizada)
+        dao.save(empresaAtualizada)
     }
 
-    override fun atualizarBiografia(texto: String) = empresaDao.atualizarBiografia(texto)
+    override fun atualizarBiografia(texto: String) = dao.atualizarBiografia(texto)
 
 
     private fun validarEmpresa(email: String, senha: String) {
@@ -102,17 +106,32 @@ class EmpresaRepositoryImpl (
     }
 
     private fun buscarEmpresaPorEmail(email: String): EmpresaEntity =
-        empresaDao.findByEmail(email)
+        dao.findByEmail(email)
             .orElseThrow { EmpresaNotFoundException("Email do usuário não encontrado") }
 
 
     private fun  validarEmailExistente(email: String) {
-        if (empresaDao.existsByEmail(email)) {
+        if (dao.existsByEmail(email)) {
             throw EmailAlreadyExistsException("O email inserido já existe!!")
         }
     }
 
     private fun buscarEmpresaPorId(id: Long): EmpresaEntity =
-        empresaDao.findById(id)
+        dao.findById(id)
             .orElseThrow { EmpresaNotFoundException("Empresa não encontrada") }
+
+    private fun mapearEmpresa(entity: EmpresaEntity): EmpresaResult {
+        val empresa = EmpresaResult(
+            nome = entity.nome,
+            email = entity.email,
+            cep = entity.cep,
+            endereco = entity.endereco,
+            numero = entity.numero,
+            cnpj = entity.cnpj,
+            area = entity.area,
+            biografia = entity.biografia!!
+        )
+
+        return empresa
+    }
 }

@@ -2,8 +2,8 @@ package cufa.conecta.com.resources.usuario.impl
 
 import cufa.conecta.com.model.data.Candidato
 import cufa.conecta.com.model.data.Candidatura
-import cufa.conecta.com.model.data.result.CandidaturaResult
 import cufa.conecta.com.model.data.Experiencia
+import cufa.conecta.com.model.data.result.CandidaturaResult
 import cufa.conecta.com.model.data.result.PublicacaoResult
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.dao.PublicacaoDao

@@ -5,7 +5,7 @@ import cufa.conecta.com.model.data.Funcionario
 interface FuncionarioRepository {
     fun criarFuncionario(data: Funcionario)
     fun existsByEmail(email: String): Boolean
-    fun findByEmpresaId(empresaId: Long): List<Funcionario>
-    fun buscarPorId(id: Long): Funcionario
+    fun buscarPeloEmpresaId(empresaId: Long): List<Funcionario>
+    fun mostrarDados(id: Long): Funcionario
     fun delete(id: Long)
 }

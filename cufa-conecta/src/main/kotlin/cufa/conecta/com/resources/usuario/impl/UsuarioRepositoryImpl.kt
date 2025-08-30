@@ -2,7 +2,6 @@ package cufa.conecta.com.resources.usuario.impl
 
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
 import cufa.conecta.com.config.GerenciadorTokenJwt
-import cufa.conecta.com.model.data.Candidato
 import cufa.conecta.com.model.data.Usuario
 import cufa.conecta.com.model.data.result.UsuarioResult
 import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
@@ -61,22 +60,33 @@ class UsuarioRepositoryImpl(
         )
     }
 
-    override fun listarTodos(): List<UsuarioResult> {
-        val listaDeUsuariosEntity = dao.findAll()
+    override fun mostrarDados(id: Long): UsuarioResult {
+        val usuarioEntity = buscarUsuarioPeloId(id)
 
-        return mapearUsuarios(listaDeUsuariosEntity)
+        return mapearUsuario(usuarioEntity)
     }
 
-    override fun atualizar(usuario: Usuario) {
-        TODO("Not yet implemented")
+    override fun atualizar(data: Usuario) {
+        val usuarioExistente = buscarUsuarioPeloId(data.id!!)
+
+        val novoUsuario = UsuarioEntity(
+            nome = data.nome,
+            email = data.email,
+            senha = usuarioExistente.senha,
+            cpf = usuarioExistente.cpf ?: data.cpf ,
+            telefone = data.telefone,
+            escolaridade = data.escolaridade,
+            dtNascimento = data.dtNascimento,
+            estadoCivil = data.estadoCivil,
+            estado = data.estado,
+            cidade = data.cidade,
+            biografia = data.biografia
+        )
+
+        dao.save(novoUsuario)
     }
 
-    override fun deletar(id: Long) {
-        TODO("Not yet implemented")
-    }
-
-
-    private fun buscarUsuariosPeloId(id: Long): UsuarioEntity =
+    private fun buscarUsuarioPeloId(id: Long): UsuarioEntity =
         dao.findById(id)
             .orElseThrow { throw EmailAlreadyExistsException("") }
 
@@ -96,16 +106,14 @@ class UsuarioRepositoryImpl(
 
     private fun buscarUsuarioPorEmail(email: String) = dao.findByEmail(email)
 
-    private fun mapearUsuarios(usuariosEntity: List<UsuarioEntity>): List<UsuarioResult> {
-        return usuariosEntity.map { usuarioEntity ->
-
+    private fun mapearUsuario(usuarioEntity: UsuarioEntity): UsuarioResult {
             val dtNascUsuario = usuarioEntity.dtNascimento
             val idade = definirIdadeDoUsuario(dtNascUsuario!!)
 
-            UsuarioResult(
+            val usuario = UsuarioResult(
                 nome = usuarioEntity.nome,
                 email = usuarioEntity.email,
-                cpf = usuarioEntity.cpf,
+                cpf = usuarioEntity.cpf!!,
                 telefone = usuarioEntity.telefone!!,
                 escolaridade = usuarioEntity.escolaridade!!,
                 idade = idade,
@@ -115,7 +123,8 @@ class UsuarioRepositoryImpl(
                 biografia = usuarioEntity.biografia!!,
                 curriculoUrl = usuarioEntity.curriculoUrl!!
             )
-        }
+
+        return usuario
     }
 
     private fun definirIdadeDoUsuario(dtNasc: LocalDate) = Period.between(dtNasc, LocalDate.now()).years

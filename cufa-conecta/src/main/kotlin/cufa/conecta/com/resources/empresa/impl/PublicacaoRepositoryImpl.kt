@@ -12,7 +12,7 @@ class PublicacaoRepositoryImpl(
     private val empresaDao: EmpresaDao
 ): PublicacaoRepository {
 
-    override fun save(data: Publicacao) {
+    override fun criar(data: Publicacao) {
         val empresa = buscarEmpresaPorId(data.empresaId)
         
         val publicacao = PublicacaoEntity(

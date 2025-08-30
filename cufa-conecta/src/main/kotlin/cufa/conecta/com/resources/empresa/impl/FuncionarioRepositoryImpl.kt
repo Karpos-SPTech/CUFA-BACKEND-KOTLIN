@@ -30,13 +30,13 @@ class FuncionarioRepositoryImpl(
 
     override fun existsByEmail(email: String): Boolean = dao.findByEmail(email).isPresent
 
-    override fun findByEmpresaId(empresaId: Long): List<Funcionario> {
+    override fun buscarPeloEmpresaId(empresaId: Long): List<Funcionario> {
         val listaDeFuncionariosEntity = dao.findByEmpresaId(empresaId)
 
         return mapearFuncionarios(listaDeFuncionariosEntity)
     }
 
-    override fun buscarPorId(id: Long): Funcionario {
+    override fun mostrarDados(id: Long): Funcionario {
         val funcionarioEntity = buscarFuncionarioPorId(id)
 
         val funcionario = Funcionario(

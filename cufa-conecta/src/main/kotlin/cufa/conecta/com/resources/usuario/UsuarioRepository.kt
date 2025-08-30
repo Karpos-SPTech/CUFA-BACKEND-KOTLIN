@@ -5,11 +5,8 @@ import cufa.conecta.com.model.data.Usuario
 import cufa.conecta.com.model.data.result.UsuarioResult
 
 interface UsuarioRepository {
-    fun cadastrarUsuario(usuario: Usuario)
+    fun cadastrarUsuario(data: Usuario)
     fun autenticar(data: Usuario): UsuarioTokenDto
-    fun listarTodos(): List<UsuarioResult>
-    fun mostrarDados(id:Long): List<Usuario>
-    fun atualizar(usuario: Usuario)
-    fun deletar(id: Long)
-
+    fun mostrarDados(id:Long): UsuarioResult
+    fun atualizar(data: Usuario)
 }
