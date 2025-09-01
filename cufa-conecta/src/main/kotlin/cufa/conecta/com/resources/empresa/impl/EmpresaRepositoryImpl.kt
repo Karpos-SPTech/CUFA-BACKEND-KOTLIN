@@ -1,5 +1,6 @@
 package cufa.conecta.com.resources.empresa.impl
 
+import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
 import cufa.conecta.com.config.GerenciadorTokenJwt
 import cufa.conecta.com.model.data.Empresa
@@ -11,10 +12,11 @@ import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
 import cufa.conecta.com.resources.empresa.exception.EmpresaNotFoundException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
+@Repository
 class EmpresaRepositoryImpl (
     private val dao: EmpresaDao,
     private val gerenciadorTokenJwt : GerenciadorTokenJwt,
@@ -41,7 +43,7 @@ class EmpresaRepositoryImpl (
         dao.save(empresaEntity)
     }
 
-    override fun autenticar(dadosLogin: Empresa): EmpresaTokenDto {
+    override fun autenticar(dadosLogin: LoginDto): EmpresaTokenDto {
         val email = dadosLogin.email
         val senha = dadosLogin.senha
 
@@ -49,25 +51,28 @@ class EmpresaRepositoryImpl (
 
         val empresaAutenticada = buscarEmpresaPorEmail(email)
 
-        val idEmpresa = empresaAutenticada.idEmpresa
-        val emailEmpresa = empresaAutenticada.email
-        val nomeEmpresa = empresaAutenticada.nome
-
-        val dadosAutenticados = UsernamePasswordAuthenticationToken(email, senha)
+        val dadosAutenticados = UsernamePasswordAuthenticationToken(
+            empresaAutenticada,
+            null,
+            emptyList()
+        )
 
         SecurityContextHolder.getContext().authentication = dadosAutenticados
 
         val tokenJwt = gerenciadorTokenJwt.generateToken(dadosAutenticados)
 
         return EmpresaTokenDto(
-            idEmpresa!!,
-            emailEmpresa,
-            nomeEmpresa,
+            empresaAutenticada.email,
+            empresaAutenticada.nome,
             tokenJwt
         )
     }
 
-    override fun listarTodos(): List<EmpresaEntity> = dao.findAll()
+    override fun listarTodos(): List<EmpresaResult> {
+        val listaDeEmpresasEntity = dao.findAll()
+
+        return mapearEmpresas(listaDeEmpresasEntity)
+    }
 
     override fun mostrarDados(id: Long): EmpresaResult {
         val empresaEntity = buscarEmpresaPorId(id)
@@ -98,11 +103,11 @@ class EmpresaRepositoryImpl (
 
 
     private fun validarEmpresa(email: String, senha: String) {
-        val autenticacao: Authentication = UsernamePasswordAuthenticationToken(email, senha)
+        val authRequest = UsernamePasswordAuthenticationToken(email, senha)
 
-        authenticationManager.authenticate(autenticacao)
+        val authResult = authenticationManager.authenticate(authRequest)
 
-        SecurityContextHolder.getContext().authentication = autenticacao
+        SecurityContextHolder.getContext().authentication = authResult
     }
 
     private fun buscarEmpresaPorEmail(email: String): EmpresaEntity =
@@ -133,5 +138,20 @@ class EmpresaRepositoryImpl (
         )
 
         return empresa
+    }
+
+    private fun mapearEmpresas(empresasEntity: List<EmpresaEntity>): List<EmpresaResult> {
+        return empresasEntity.map { entity ->
+            EmpresaResult(
+                nome = entity.nome,
+                email = entity.email,
+                cep = entity.cep,
+                endereco = entity.endereco,
+                numero = entity.numero,
+                cnpj = entity.cnpj,
+                area = entity.area,
+                biografia = entity.biografia!!
+            )
+        }
     }
 }

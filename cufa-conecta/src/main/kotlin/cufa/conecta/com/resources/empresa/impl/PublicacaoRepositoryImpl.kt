@@ -5,22 +5,24 @@ import cufa.conecta.com.resources.empresa.PublicacaoRepository
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.dao.PublicacaoDao
 import cufa.conecta.com.resources.empresa.entity.PublicacaoEntity
+import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
+@Repository
 class PublicacaoRepositoryImpl(
     private val dao: PublicacaoDao,
     private val empresaDao: EmpresaDao
 ): PublicacaoRepository {
 
     override fun criar(data: Publicacao) {
-        val empresa = buscarEmpresaPorId(data.empresaId)
+        val empresa = buscarEmpresaPorId(data.empresaId!!)
         
         val publicacao = PublicacaoEntity(
             empresa = empresa,
-            titulo = data.titulo,
-            descricao = data.descricao,
-            tipoContrato = data.tipoContrato,
-            dtExpiracao = data.dtExpiracao,
+            titulo = data.titulo!!,
+            descricao = data.descricao!!,
+            tipoContrato = data.tipoContrato!!,
+            dtExpiracao = data.dtExpiracao!!,
             dtPublicacao = LocalDateTime.now(),
         )
         
@@ -33,8 +35,8 @@ class PublicacaoRepositoryImpl(
         return mapearPublicacoes(listaDePublicacoesEntity)
     }
 
-    override fun buscarPublicacoesPorEmpresaId(id: Long): List<Publicacao> {
-        val listaDePublicacoesEntity = dao.findPublicacoesByEmpresaId(id)
+    override fun buscarPublicacoesPorEmpresaEmail(data: String): List<Publicacao> {
+        val listaDePublicacoesEntity = dao.findPublicacoesByEmpresaEmail(data)
 
         return mapearPublicacoes(listaDePublicacoesEntity)
     }
@@ -44,6 +46,7 @@ class PublicacaoRepositoryImpl(
 
         val publicacao = Publicacao(
             empresaId = entity.empresa.idEmpresa!!,
+            nomeEmpresa = entity.empresa.nome,
             titulo = entity.titulo,
             descricao = entity.descricao,
             tipoContrato = entity.tipoContrato,
@@ -60,11 +63,11 @@ class PublicacaoRepositoryImpl(
         dao.delete(publicacao)
     }
 
-
     private fun mapearPublicacoes(publicacoesEntity: List<PublicacaoEntity>): List<Publicacao> {
         return publicacoesEntity.map { entity ->
             Publicacao(
                 empresaId = entity.empresa.idEmpresa!!,
+                nomeEmpresa = entity.empresa.nome,
                 titulo = entity.titulo,
                 descricao = entity.descricao,
                 tipoContrato = entity.tipoContrato,

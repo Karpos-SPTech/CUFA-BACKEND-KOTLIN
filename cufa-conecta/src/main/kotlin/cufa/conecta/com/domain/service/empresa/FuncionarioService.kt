@@ -7,5 +7,5 @@ interface FuncionarioService {
     fun existsByEmail(email: String): Boolean
     fun buscarPeloEmpresaId(empresaId: Long): List<Funcionario>
     fun mostrarDados(id: Long): Funcionario
-    fun delete(id: Long)
+    fun deletar(id: Long)
 }

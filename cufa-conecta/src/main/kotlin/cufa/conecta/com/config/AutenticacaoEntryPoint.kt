@@ -17,10 +17,7 @@ class AutenticacaoEntryPoint : AuthenticationEntryPoint {
     ) {
         when (authException) {
             is BadCredentialsException,
-            is InsufficientAuthenticationException -> {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-            }
-
+            is InsufficientAuthenticationException -> { response.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
             else -> {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN)
             }

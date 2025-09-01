@@ -1,4 +1,8 @@
 package cufa.conecta.com.application.dto.request
 
-class LoginDto {
+data class LoginDto(
+    val email: String,
+    val senha: String
+) {
+    fun toModel(): LoginDto = LoginDto(email = email, senha = senha)
 }

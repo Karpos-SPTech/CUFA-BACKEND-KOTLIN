@@ -1,6 +1,7 @@
 package cufa.conecta.com.config
 
 import cufa.conecta.com.resources.AutenticacaoRepository
+import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -26,7 +27,7 @@ class AutenticacaoFilter(
             val jwtToken = extractToken(requestTokenHeader!!)
 
             val username = runCatching { jwtTokenManager.getUsernameFromToken(jwtToken) }
-                .getOrElse { throw UserNotFoundException("User not found") }
+                .getOrElse { throw EmailAlreadyExistsException("User not found") }
 
             if (SecurityContextHolder.getContext().authentication == null) addUsernameInContext(request, username, jwtToken)
         }
