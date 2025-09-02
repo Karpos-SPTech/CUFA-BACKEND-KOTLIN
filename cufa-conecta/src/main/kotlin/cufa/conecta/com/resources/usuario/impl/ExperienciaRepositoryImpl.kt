@@ -4,7 +4,9 @@ import cufa.conecta.com.model.data.Experiencia
 import cufa.conecta.com.resources.usuario.ExperienciaRepository
 import cufa.conecta.com.resources.usuario.dao.ExperienciaDao
 import cufa.conecta.com.resources.usuario.entity.ExperienciaEntity
+import org.springframework.stereotype.Repository
 
+@Repository
 class ExperienciaRepositoryImpl(
     private val dao: ExperienciaDao
 ): ExperienciaRepository {

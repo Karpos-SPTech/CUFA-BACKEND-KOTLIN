@@ -4,10 +4,10 @@ import java.time.LocalDate
 
 data class Usuario (
     val id: Long?= null,
-    val nome: String,
-    val email: String,
-    val senha: String,
-    val cpf: String,
+    val nome: String?= null,
+    val email: String?= null,
+    val senha: String?= null,
+    val cpf: String?= null,
     val telefone: String?= null,
     val escolaridade: String?= null,
     val dtNascimento: LocalDate?= null,

@@ -19,7 +19,7 @@ data class EmpresaRequestDto(
     @field:NotBlank(message = "O campo da senha não pode ser nulo, vazio ou branco")
     val senha: String,
 
-    @Size(min = 8,max = 8, message = "O CEP deve conter 8 dígitos")
+    @field:Size(min = 8,max = 8, message = "O CEP deve conter 8 dígitos")
     @field:Digits(message = "O CEP deve conter apenas números", integer = 8, fraction = 0)
     @field:NotBlank(message = "O campo do CEP não pode ser nulo, vazio ou branco")
     val cep: String,

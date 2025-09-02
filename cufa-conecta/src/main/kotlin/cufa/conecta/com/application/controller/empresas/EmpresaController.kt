@@ -54,6 +54,7 @@ class EmpresaController(
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "Bearer")
     fun buscarPorId(@PathVariable id: Long): EmpresaResponseDto {
         val empresaData = service.mostrarDados(id)
 
@@ -62,15 +63,16 @@ class EmpresaController(
         return result
     }
 
-    @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Long, @RequestBody @Valid dto: EmpresaRequestDto) {
+    @PutMapping
+    @SecurityRequirement(name = "Bearer")
+    fun atualizar(@RequestBody @Valid dto: EmpresaRequestDto) {
         val empresaAtualizada = dto.toModel()
 
         service.atualizarDados(empresaAtualizada)
     }
 
     @PatchMapping("/biografia")
-    @SecurityRequirement(name = "bearer")
+    @SecurityRequirement(name = "Bearer")
     fun adicionarBiografia(@RequestBody @Valid dto: BiografiaRequestDto) =
        service.atualizarBiografia(dto.toString())
 

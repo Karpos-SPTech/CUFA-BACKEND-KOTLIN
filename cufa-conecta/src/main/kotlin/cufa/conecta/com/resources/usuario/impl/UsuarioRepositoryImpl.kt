@@ -1,5 +1,6 @@
 package cufa.conecta.com.resources.usuario.impl
 
+import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
 import cufa.conecta.com.config.GerenciadorTokenJwt
 import cufa.conecta.com.model.data.Usuario
@@ -12,16 +13,18 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.time.Period
 
+@Repository
 class UsuarioRepositoryImpl(
     private val dao: UsuarioDao,
     private val gerenciadorTokenJwt: GerenciadorTokenJwt,
     private val authenticationManager: AuthenticationManager,
 ): UsuarioRepository {
     override fun cadastrarUsuario(data: Usuario) {
-        validarEmailExistente(data.email)
+        validarEmailExistente(data.email!!)
 
         val usuario = UsuarioEntity(
             nome = data.nome,
@@ -41,7 +44,7 @@ class UsuarioRepositoryImpl(
         dao.save(usuario)
     }
 
-    override fun autenticar(data: Usuario): UsuarioTokenDto {
+    override fun autenticar(data: LoginDto): UsuarioTokenDto {
         authenticateCredentials(data.email, data.senha)
 
         val usuarioAutenticado = buscarUsuarioPorEmail(data.email)
@@ -53,9 +56,8 @@ class UsuarioRepositoryImpl(
         val token = gerenciadorTokenJwt.generateToken(authentication)
 
         return UsuarioTokenDto(
-            id = usuarioAutenticado.id!!,
-            nome = usuarioAutenticado.nome,
-            email = usuarioAutenticado.email,
+            nome = usuarioAutenticado.nome!!,
+            email = usuarioAutenticado.email!!,
             token = token
         )
     }
@@ -111,8 +113,8 @@ class UsuarioRepositoryImpl(
             val idade = definirIdadeDoUsuario(dtNascUsuario!!)
 
             val usuario = UsuarioResult(
-                nome = usuarioEntity.nome,
-                email = usuarioEntity.email,
+                nome = usuarioEntity.nome!!,
+                email = usuarioEntity.email!!,
                 cpf = usuarioEntity.cpf!!,
                 telefone = usuarioEntity.telefone!!,
                 escolaridade = usuarioEntity.escolaridade!!,

@@ -13,19 +13,19 @@ data class UsuarioEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
     val id: Long? = null,
-    val nome: String,
-    val email: String,
-    val senha: String,
+    val nome: String ?= null,
+    val email: String ?= null,
+    val senha: String ?= null,
     val cpf: String ?= null,
-    val telefone: String? = null,
-    val escolaridade: String? = null,
+    val telefone: String ?= null,
+    val escolaridade: String ?= null,
     @Column(name = "dt_nascimento")
-    val dtNascimento: LocalDate? = null,
+    val dtNascimento: LocalDate ?= null,
     @Column(name = "estado_civil")
-    val estadoCivil: String? = null,
-    val estado: String? = null,
-    val cidade: String? = null,
-    val biografia: String? = null,
+    val estadoCivil: String ?= null,
+    val estado: String ?= null,
+    val cidade: String ?= null,
+    val biografia: String ?= null,
     @Column(name = "curriculo_url")
-    val curriculoUrl: String? = null,
+    val curriculoUrl: String ?= null,
 )

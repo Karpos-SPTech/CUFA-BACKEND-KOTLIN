@@ -3,8 +3,8 @@ package cufa.conecta.com.resources.usuario.impl
 import cufa.conecta.com.model.data.Candidato
 import cufa.conecta.com.model.data.Candidatura
 import cufa.conecta.com.model.data.Experiencia
+import cufa.conecta.com.model.data.Publicacao
 import cufa.conecta.com.model.data.result.CandidaturaResult
-import cufa.conecta.com.model.data.result.PublicacaoResult
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.dao.PublicacaoDao
 import cufa.conecta.com.resources.empresa.entity.EmpresaEntity
@@ -16,9 +16,11 @@ import cufa.conecta.com.resources.usuario.dao.ExperienciaDao
 import cufa.conecta.com.resources.usuario.dao.UsuarioDao
 import cufa.conecta.com.resources.usuario.entity.CandidaturaEntity
 import cufa.conecta.com.resources.usuario.entity.UsuarioEntity
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.time.Period
 
+@Repository
 class CandidaturaRepositoryImpl(
     private val dao: CandidaturaDao,
     private val usuarioDao: UsuarioDao,
@@ -28,9 +30,9 @@ class CandidaturaRepositoryImpl(
 ): CandidaturaRepository {
 
     override fun criarCandidatura(data: Candidatura) {
-        val usuario = buscarUsuarioPeloId(data.fkUsuario!!)
-        val publicacao = buscarPublicacaoPeloId(data.fkPublicacao!!)
-        val empresa = buscarEmpresaPeloId(data.fkEmpresa!!)
+        val usuario = buscarUsuarioPeloId(data.fkUsuario)
+        val publicacao = buscarPublicacaoPeloId(data.fkPublicacao)
+        val empresa = buscarEmpresaPeloId(data.fkEmpresa)
         
         val candidaturaEntity = CandidaturaEntity(
             usuario = usuario,
@@ -66,7 +68,7 @@ class CandidaturaRepositoryImpl(
         return dao.existsByUsuarioAndPublicacao(usuario, vaga)
     }
 
-    override fun listarPublicacoesCandidatadasPorUsuario(id: Long): List<PublicacaoResult> {
+    override fun listarPublicacoesCandidatadasPorUsuario(id: Long): List<Publicacao> {
         val usuario: UsuarioEntity = buscarUsuarioPeloId(id)
         val listaDeCandidaturasEntity: List<CandidaturaEntity> = dao.findByUsuario(usuario)
 
@@ -113,10 +115,10 @@ class CandidaturaRepositoryImpl(
             val idade = definirIdadeDoUsuario(dtNascUsuario!!)
 
             Candidato(
-                nome = usuarioEntity.nome,
+                nome = usuarioEntity.nome!!,
                 idade = idade,
                 biografia = usuarioEntity.biografia!!,
-                email = usuarioEntity.email,
+                email = usuarioEntity.email!!,
                 telefone = usuarioEntity.telefone!!,
                 curriculoUrl = usuarioEntity.curriculoUrl!!,
                 experiencias = experiencias
@@ -124,18 +126,18 @@ class CandidaturaRepositoryImpl(
         }
     }
 
-    private fun mapearPublicacoes(candidaturasEntity: List<CandidaturaEntity>): List<PublicacaoResult> {
+    private fun mapearPublicacoes(candidaturasEntity: List<CandidaturaEntity>): List<Publicacao> {
         return candidaturasEntity.map { candidaturaEntity ->
             val publicacaoEntity = candidaturaEntity.publicacao
 
-            PublicacaoResult(
+            Publicacao(
+                empresaId = publicacaoEntity.empresa.idEmpresa!!,
+                nomeEmpresa = publicacaoEntity.empresa.nome,
                 titulo = publicacaoEntity.titulo,
                 descricao = publicacaoEntity.descricao,
                 tipoContrato = publicacaoEntity.tipoContrato,
                 dtExpiracao = publicacaoEntity.dtExpiracao,
-                dtPublicacao = publicacaoEntity.dtPublicacao,
-                nomeEmpresa = publicacaoEntity.empresa.nome,
-                fkEmpresa = publicacaoEntity.empresa.idEmpresa!!
+                dtPublicacao = publicacaoEntity.dtPublicacao
             )
         }
     }
