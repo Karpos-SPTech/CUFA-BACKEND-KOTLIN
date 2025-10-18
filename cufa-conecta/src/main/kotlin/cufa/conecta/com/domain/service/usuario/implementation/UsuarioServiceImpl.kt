@@ -19,4 +19,7 @@ class UsuarioServiceImpl(
     override fun mostrarDados(id: Long): UsuarioResult = repository.mostrarDados(id)
 
     override fun atualizar(data: Usuario) = repository.atualizar(data)
+
+    override fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?) =
+        repository.atualizarCurriculoUrl(userId, curriculoUrl)
 }

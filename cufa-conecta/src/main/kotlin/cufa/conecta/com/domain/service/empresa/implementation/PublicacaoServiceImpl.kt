@@ -1,7 +1,10 @@
 package cufa.conecta.com.domain.service.empresa.implementation
 
+import cufa.conecta.com.application.exception.InvalidPageNumberException
+import cufa.conecta.com.application.exception.InvalidSizeNumberException
 import cufa.conecta.com.domain.service.empresa.PublicacaoService
 import cufa.conecta.com.model.data.Publicacao
+import cufa.conecta.com.model.data.result.PublicacaoResult
 import cufa.conecta.com.resources.empresa.PublicacaoRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -12,7 +15,11 @@ class PublicacaoServiceImpl(
 ): PublicacaoService {
     override fun criar(data: Publicacao) = repository.criar(data)
 
-    override fun buscarTodas(): List<Publicacao> = repository.buscarTodas()
+    override fun buscarTodas(page: Int, size: Int): PublicacaoResult {
+        validatePageAndSize(page, size)
+
+        return repository.buscarTodas(page, size)
+    }
 
     override fun buscarPublicacoesDaEmpresa(): List<Publicacao> {
         val emailEmpresaLogada = SecurityContextHolder.getContext().authentication.name
@@ -38,4 +45,10 @@ class PublicacaoServiceImpl(
     }
 
     override fun delete(id: Long) = repository.delete(id)
+
+    private fun validatePageAndSize(page: Int, size: Int) {
+        if (page < 1) throw InvalidPageNumberException("A página $page não foi encontrada")
+
+        if (size < 1) throw InvalidSizeNumberException("O tamanho da lista desejado é inválido")
+    }
 }

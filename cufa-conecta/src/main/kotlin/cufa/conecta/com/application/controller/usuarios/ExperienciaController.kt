@@ -2,6 +2,7 @@ package cufa.conecta.com.application.controller.usuarios
 
 import cufa.conecta.com.application.dto.request.usuario.ExperienciaRequestDto
 import cufa.conecta.com.application.dto.response.usuario.ExperienciaResponseDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.usuario.ExperienciaService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
@@ -18,7 +19,11 @@ class ExperienciaController(
     fun criarExperiencia(@RequestBody dto: ExperienciaRequestDto) {
         val data = dto.toModel()
 
-        service.criarExperiencia(data)
+        runCatching {
+            service.criarExperiencia(data)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar a experiência!!")
+        }
     }
 
     @GetMapping("/{id}")

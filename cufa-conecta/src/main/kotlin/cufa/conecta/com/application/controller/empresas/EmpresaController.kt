@@ -5,8 +5,9 @@ import cufa.conecta.com.application.dto.request.empresa.BiografiaRequestDto
 import cufa.conecta.com.application.dto.request.empresa.EmpresaRequestDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaResponseDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
+import cufa.conecta.com.application.exception.EmpresaNotExistsException
 import cufa.conecta.com.domain.service.empresa.EmpresaService
-import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -23,7 +24,11 @@ class EmpresaController(
     fun cadastrar(@RequestBody @Valid dto: EmpresaRequestDto) {
         val empresaData = dto.toModel()
 
-        service.cadastrarEmpresa(empresaData)
+        runCatching {
+            service.cadastrarEmpresa(empresaData)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar a empresa!!")
+        }
     }
 
     @PostMapping("/login")
@@ -46,7 +51,7 @@ class EmpresaController(
     fun listarEmpresas(): List<EmpresaResponseDto> {
         val empresasEncontradas = service.listarTodos()
 
-        if (empresasEncontradas.isEmpty()) { throw EmailAlreadyExistsException("") }
+        if (empresasEncontradas.isEmpty()) { throw EmpresaNotExistsException("Não há nenhuma empresa cadastrada!") }
 
         val result = EmpresaResponseDto.listOf(empresasEncontradas)
 

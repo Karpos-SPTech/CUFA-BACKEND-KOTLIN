@@ -5,10 +5,13 @@ import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
 import cufa.conecta.com.config.GerenciadorTokenJwt
 import cufa.conecta.com.model.data.Usuario
 import cufa.conecta.com.model.data.result.UsuarioResult
-import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
+import cufa.conecta.com.resources.empresa.exception.EmailExistenteException
+import cufa.conecta.com.resources.empresa.exception.EmpresaNotFoundException
 import cufa.conecta.com.resources.usuario.UsuarioRepository
 import cufa.conecta.com.resources.usuario.dao.UsuarioDao
 import cufa.conecta.com.resources.usuario.entity.UsuarioEntity
+import cufa.conecta.com.resources.usuario.exception.UpdateCurriculoException
+import cufa.conecta.com.resources.usuario.exception.UsuarioExistenteException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -75,7 +78,7 @@ class UsuarioRepositoryImpl(
             nome = data.nome,
             email = data.email,
             senha = usuarioExistente.senha,
-            cpf = usuarioExistente.cpf ?: data.cpf ,
+            cpf = data.cpf,
             telefone = data.telefone,
             escolaridade = data.escolaridade,
             dtNascimento = data.dtNascimento,
@@ -88,13 +91,21 @@ class UsuarioRepositoryImpl(
         dao.save(novoUsuario)
     }
 
+    override fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?) {
+        runCatching {
+            dao.atualizarCurriculoUrl(userId, curriculoUrl)
+        }.getOrElse {
+            throw UpdateCurriculoException("Falha ao atualizar o curriculo!!")
+        }
+    }
+
     private fun buscarUsuarioPeloId(id: Long): UsuarioEntity =
         dao.findById(id)
-            .orElseThrow { throw EmailAlreadyExistsException("") }
+            .orElseThrow { throw UsuarioExistenteException("O usuario inserido já existe!!") }
 
     private fun validarEmailExistente(email: String) {
         if (dao.existsByEmail(email)) {
-            throw EmailAlreadyExistsException("O email inserido já existe!!")
+            throw EmailExistenteException("O email inserido já existe!!")
         }
     }
 
@@ -107,6 +118,7 @@ class UsuarioRepositoryImpl(
     }
 
     private fun buscarUsuarioPorEmail(email: String) = dao.findByEmail(email)
+        .orElseThrow { EmpresaNotFoundException("Email do usuário não encontrado") }
 
     private fun mapearUsuario(usuarioEntity: UsuarioEntity): UsuarioResult {
             val dtNascUsuario = usuarioEntity.dtNascimento

@@ -4,6 +4,7 @@ import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioCadastroRequestDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioUpdateRequestDto
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.usuario.UsuarioService
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
@@ -17,6 +18,11 @@ class UsuarioController(
     fun cadastrarUsuario(@RequestBody @Valid dto: UsuarioCadastroRequestDto) {
         val data = dto.toModel()
 
+        runCatching {
+            service.cadastrarUsuario(data)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar o usuário ${dto.nome}!!")
+        }
         service.cadastrarUsuario(data)
     }
 

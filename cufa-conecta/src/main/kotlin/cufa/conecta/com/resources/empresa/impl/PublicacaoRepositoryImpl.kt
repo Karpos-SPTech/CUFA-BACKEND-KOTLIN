@@ -1,12 +1,15 @@
 package cufa.conecta.com.resources.empresa.impl
 
+import cufa.conecta.com.application.exception.PageNotFoundException
 import cufa.conecta.com.model.data.Publicacao
+import cufa.conecta.com.model.data.result.PublicacaoResult
 import cufa.conecta.com.resources.empresa.PublicacaoRepository
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.dao.PublicacaoDao
 import cufa.conecta.com.resources.empresa.entity.PublicacaoEntity
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
+import kotlin.math.ceil
 
 @Repository
 class PublicacaoRepositoryImpl(
@@ -29,10 +32,24 @@ class PublicacaoRepositoryImpl(
         dao.save(publicacao)
     }
 
-    override fun buscarTodas(): List<Publicacao> {
-        val listaDePublicacoesEntity = dao.findAll()
+    override fun buscarTodas(page: Int, size: Int): PublicacaoResult {
+        val totalOfPublishes = dao.count()
 
-        return mapearPublicacoes(listaDePublicacoesEntity)
+        val totalOfPages = ceil(totalOfPublishes.toDouble() / size).toInt()
+
+        if (page > totalOfPages && totalOfPublishes >= 0)
+            throw PageNotFoundException("A página $page não foi encontrada")
+
+        val publicacoes = listarPublicacoes(page, size)
+
+        val dadosPaginados = PublicacaoResult(
+            paginaAtual = page,
+            totalDePaginas = totalOfPages,
+            totalDePublicacoes = totalOfPublishes,
+            publicacoes = publicacoes
+        )
+
+        return dadosPaginados
     }
 
     override fun buscarPublicacoesPorEmpresaEmail(data: String): List<Publicacao> {
@@ -84,4 +101,12 @@ class PublicacaoRepositoryImpl(
     private fun buscarPublicacaoPorId(id: Long) =
         dao.findById(id)
             .orElseThrow { RuntimeException("Empresa not found!") }
+
+    private fun listarPublicacoes(page: Int, size: Int): List<Publicacao> {
+        val offset = (page - 1) * size
+
+        val listaDeUsuariosEntity = dao.dadosPaginados(offset, size)
+
+        return mapearPublicacoes(listaDeUsuariosEntity)
+    }
 }

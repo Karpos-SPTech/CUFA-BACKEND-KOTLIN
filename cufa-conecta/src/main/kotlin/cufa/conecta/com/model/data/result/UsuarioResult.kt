@@ -11,5 +11,5 @@ data class UsuarioResult (
     val estado: String,
     val cidade: String,
     val biografia: String,
-    val curriculoUrl: String,
+    val curriculoUrl: String?,
 )

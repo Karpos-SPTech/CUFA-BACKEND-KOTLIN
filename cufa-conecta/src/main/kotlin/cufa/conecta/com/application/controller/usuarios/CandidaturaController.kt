@@ -3,6 +3,7 @@ package cufa.conecta.com.application.controller.usuarios
 import cufa.conecta.com.application.dto.request.usuario.CandidaturaRequestDto
 import cufa.conecta.com.application.dto.response.empresa.PublicacaoResponseDto
 import cufa.conecta.com.application.dto.response.usuario.CandidaturaResponseDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.usuario.CandidaturaService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
@@ -19,13 +20,21 @@ class CandidaturaController(
     fun criarCandidatura(@RequestBody dto: CandidaturaRequestDto) {
         val data = dto.toModel()
 
-        service.criarCandidatura(data)
+        runCatching {
+            service.criarCandidatura(data)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao criar a candidatura!!")
+        }
     }
 
     @GetMapping("/{vagaId}")
     @ResponseStatus(HttpStatus.OK)
-    fun listarInformacoes(@PathVariable vagaId: Long): CandidaturaResponseDto {
-        val candidatura = service.listarDadosDaVaga(vagaId)
+    fun listarCandidatosPorVaga(
+        @PathVariable vagaId: Long,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): CandidaturaResponseDto {
+        val candidatura = service.listarDadosDaVaga(vagaId, page, size)
 
         val result = CandidaturaResponseDto.of(candidatura)
 

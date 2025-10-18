@@ -8,7 +8,7 @@ import cufa.conecta.com.model.data.result.EmpresaResult
 import cufa.conecta.com.resources.empresa.EmpresaRepository
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
 import cufa.conecta.com.resources.empresa.entity.EmpresaEntity
-import cufa.conecta.com.resources.empresa.exception.EmailAlreadyExistsException
+import cufa.conecta.com.resources.empresa.exception.EmailExistenteException
 import cufa.conecta.com.resources.empresa.exception.EmpresaNotFoundException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -117,7 +117,7 @@ class EmpresaRepositoryImpl (
 
     private fun  validarEmailExistente(email: String) {
         if (dao.existsByEmail(email)) {
-            throw EmailAlreadyExistsException("O email inserido já existe!!")
+            throw EmailExistenteException("O email inserido já existe!!")
         }
     }
 

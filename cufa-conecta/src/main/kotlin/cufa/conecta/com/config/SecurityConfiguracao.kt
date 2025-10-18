@@ -42,7 +42,14 @@ class SecurityConfiguracao(
                 AntPathRequestMatcher("/users/**"),
                 AntPathRequestMatcher("/roles/**"),
                 AntPathRequestMatcher("/error/**"),
-                AntPathRequestMatcher("/actuator/**")
+                AntPathRequestMatcher("/actuator/**"),
+                AntPathRequestMatcher("/empresas/**"),
+                AntPathRequestMatcher("/funcionarios/**"),
+                AntPathRequestMatcher("/publicacoes/**"),
+                AntPathRequestMatcher("/curriculos/**"),
+                AntPathRequestMatcher("/candidaturas/**"),
+                AntPathRequestMatcher("/experiencias/**"),
+                AntPathRequestMatcher("/usuarios/**")
             )
     }
 

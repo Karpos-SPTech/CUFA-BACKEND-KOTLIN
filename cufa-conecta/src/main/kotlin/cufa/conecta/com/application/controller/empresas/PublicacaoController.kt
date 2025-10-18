@@ -1,7 +1,9 @@
 package cufa.conecta.com.application.controller.empresas
 
 import cufa.conecta.com.application.dto.request.empresa.PublicacaoRequestDto
+import cufa.conecta.com.application.dto.response.empresa.PublicacaoPaginadaResponseDto
 import cufa.conecta.com.application.dto.response.empresa.PublicacaoResponseDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.empresa.PublicacaoService
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
@@ -17,14 +19,21 @@ class PublicacaoController(
     fun criar(@RequestBody dto: PublicacaoRequestDto) {
         val data = dto.toModel()
 
-        service.criar(data)
+        runCatching {
+            service.criar(data)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar a publicação!!")
+        }
     }
 
     @GetMapping
-    fun listarTodos(): List<PublicacaoResponseDto> {
-        val publicacoesEncontradas = service.buscarTodas()
+    fun listarTodos(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): PublicacaoPaginadaResponseDto {
+        val publicacoesEncontradas = service.buscarTodas(page, size)
 
-        val result = PublicacaoResponseDto.listOf(publicacoesEncontradas)
+        val result = PublicacaoPaginadaResponseDto.listOfResult(publicacoesEncontradas)
 
         return result
     }

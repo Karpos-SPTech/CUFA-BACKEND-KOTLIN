@@ -6,8 +6,8 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
-@SpringBootApplication(scanBasePackages = ["cufa.conecta.com"])
-@EntityScan("cufa.conecta.com.resources")
+@SpringBootApplication(scanBasePackages = ["cufa.conecta.com.*"])
+@EntityScan("cufa.conecta.com.resources.*")
 @EnableJpaRepositories("cufa.conecta.com.resources")
 @ComponentScan("cufa.conecta.com")
 class CufaConectaApplication

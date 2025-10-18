@@ -10,5 +10,8 @@ data class CandidaturaResult (
     val dtPublicacao: LocalDateTime,
     val dtExpiracao: LocalDateTime,
     val qtdCandidatos: Int,
-    val candidatos: List<Candidato>
+    val candidatos: List<Candidato>,
+    val paginaAtual: Int,
+    val totalDePaginas: Int,
+    val totalDeCandidatos: Long
 )

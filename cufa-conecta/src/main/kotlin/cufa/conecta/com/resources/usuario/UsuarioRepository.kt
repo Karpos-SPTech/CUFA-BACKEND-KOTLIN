@@ -10,4 +10,5 @@ interface UsuarioRepository {
     fun autenticar(data: LoginDto): UsuarioTokenDto
     fun mostrarDados(id:Long): UsuarioResult
     fun atualizar(data: Usuario)
+    fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?)
 }

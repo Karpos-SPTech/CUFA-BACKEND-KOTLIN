@@ -1,0 +1,10 @@
+package cufa.conecta.com.model.data.result
+
+import cufa.conecta.com.model.data.Publicacao
+
+data class PublicacaoResult(
+    val publicacoes: List<Publicacao>,
+    val paginaAtual: Int,
+    val totalDePaginas: Int,
+    val totalDePublicacoes: Long
+)
