@@ -1,15 +1,16 @@
 package cufa.conecta.com.resources.empresa
 
-import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
+import cufa.conecta.com.model.data.Biografia
 import cufa.conecta.com.model.data.Empresa
+import cufa.conecta.com.model.data.Login
 import cufa.conecta.com.model.data.result.EmpresaResult
 
 interface EmpresaRepository {
     fun cadastrarEmpresa(data: Empresa)
-    fun autenticar(dadosLogin: LoginDto): EmpresaTokenDto
+    fun autenticar(dadosLogin: Login): EmpresaTokenDto
     fun listarTodos(): List<EmpresaResult>
     fun mostrarDados(id: Long): EmpresaResult
-    fun atualizarDados(data: Empresa)
-    fun atualizarBiografia(texto: String)
+    fun atualizarDados(data: Empresa, email: String)
+    fun atualizarBiografia(data: Biografia, email: String)
 }

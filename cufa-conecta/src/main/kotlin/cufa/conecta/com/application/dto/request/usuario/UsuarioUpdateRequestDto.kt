@@ -1,8 +1,10 @@
 package cufa.conecta.com.application.dto.request.usuario
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import cufa.conecta.com.model.data.Usuario
 import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.br.CPF
 import java.time.LocalDate
@@ -17,7 +19,8 @@ data class UsuarioUpdateRequestDto(
     val telefone: String,
     @field:NotBlank(message = "O campo escolaridade não pode ser nulo, vazio ou branco")
     val escolaridade: String,
-    @field:NotBlank(message = "O campo dtNascimento não pode ser nulo, vazio ou branco")
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    @field:NotNull(message = "O campo dtNascimento não pode ser nulo")
     val dtNascimento: LocalDate,
     @field:NotBlank(message = "O campo estado civil não pode ser nulo, vazio ou branco")
     val estadoCivil: String,

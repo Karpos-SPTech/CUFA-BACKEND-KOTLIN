@@ -14,20 +14,26 @@ import cufa.conecta.com.resources.empresa.exception.EmailExistenteException
 import cufa.conecta.com.resources.empresa.exception.EmpresaNotFoundException
 import cufa.conecta.com.resources.usuario.exception.UpdateCurriculoException
 import cufa.conecta.com.resources.usuario.exception.UsuarioExistenteException
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseEntity
+import org.springframework.validation.ObjectError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 @RestControllerAdvice
 class ControllerExceptionHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(
         UpdateCurriculoException::class,
-
         CreateInternalServerError::class,
         Exception::class
     )
@@ -84,4 +90,23 @@ class ControllerExceptionHandler: ResponseEntityExceptionHandler() {
             type = ex.javaClass.typeName
         )
     }
+
+    override fun handleMethodArgumentNotValid(
+        ex: MethodArgumentNotValidException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest
+    ): ResponseEntity<Any> =
+        ex.bindingResult.allErrors
+            .map(ObjectError::getDefaultMessage)
+            .let {
+                ResponseEntity(
+                    ApiExceptionDto(
+                        status = HttpStatus.resolve(status.value()) ?: INTERNAL_SERVER_ERROR,
+                        message = it.toString(),
+                        type = ex.javaClass.typeName
+                    ),
+                    status
+                )
+            }
 }

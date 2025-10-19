@@ -4,9 +4,11 @@ import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioCadastroRequestDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioUpdateRequestDto
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
-import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.usuario.UsuarioService
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -15,34 +17,51 @@ class UsuarioController(
     private val service: UsuarioService
 ) {
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun cadastrarUsuario(@RequestBody @Valid dto: UsuarioCadastroRequestDto) {
         val data = dto.toModel()
 
-        runCatching {
-            service.cadastrarUsuario(data)
-        }.getOrElse {
-            throw CreateInternalServerError("Falha ao cadastrar o usuário ${dto.nome}!!")
-        }
         service.cadastrarUsuario(data)
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody @Valid dto: LoginDto): UsuarioTokenDto {
+    fun login(
+        @RequestBody @Valid dto: LoginDto,
+        response: HttpServletResponse
+    ): UsuarioTokenDto {
         val data = dto.toModel()
+
         val usuarioToken = service.autenticar(data)
+
+        val cookie = Cookie("jwt", usuarioToken.tokenJwt)
+        cookie.isHttpOnly = true
+//        cookie.secure = true
+        cookie.path = "/"
+        cookie.maxAge = 60 * 60 * 24 * 7
+
+        response.addCookie(cookie)
 
         return UsuarioTokenDto(
             nome = usuarioToken.nome,
             email = usuarioToken.email,
-            token = usuarioToken.token
+            tokenJwt = null
         )
     }
 
-    @PutMapping("/{id}")
-    fun incrementarDadosDoUsuarios(
-        @PathVariable id: Long,
-        @RequestBody @Valid dto: UsuarioUpdateRequestDto
-    ) {
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun logout(response: HttpServletResponse) {
+        val cookie = Cookie("jwt", null)
+        cookie.isHttpOnly = true
+//        cookie.secure = true
+        cookie.path = "/"
+        cookie.maxAge = 0
+
+        response.addCookie(cookie)
+    }
+
+    @PutMapping
+    fun incrementarDadosDoUsuarios(@RequestBody @Valid dto: UsuarioUpdateRequestDto) {
         val usuarioAtualizado = dto.toModel()
 
         service.atualizar(usuarioAtualizado)

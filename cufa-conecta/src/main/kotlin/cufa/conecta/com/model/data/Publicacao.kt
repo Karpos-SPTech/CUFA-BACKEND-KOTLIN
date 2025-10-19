@@ -3,6 +3,7 @@ package cufa.conecta.com.model.data
 import java.time.LocalDateTime
 
 data class Publicacao(
+    val publicacaoId: Long? = null,
     val empresaId: Long? = null,
     val nomeEmpresa: String? = null,
     val titulo: String?,

@@ -13,7 +13,13 @@ import org.springframework.stereotype.Service
 class PublicacaoServiceImpl(
     private val repository: PublicacaoRepository
 ): PublicacaoService {
-    override fun criar(data: Publicacao) = repository.criar(data)
+    override fun criar(data: Publicacao) {
+        val auth = SecurityContextHolder.getContext().authentication
+
+        val email = auth?.name
+
+        repository.criar(data, email!!)
+    }
 
     override fun buscarTodas(page: Int, size: Int): PublicacaoResult {
         validatePageAndSize(page, size)
@@ -22,9 +28,11 @@ class PublicacaoServiceImpl(
     }
 
     override fun buscarPublicacoesDaEmpresa(): List<Publicacao> {
-        val emailEmpresaLogada = SecurityContextHolder.getContext().authentication.name
+        val auth = SecurityContextHolder.getContext().authentication
 
-        val publicacoes = repository.buscarPublicacoesPorEmpresaEmail(emailEmpresaLogada)
+        val email = auth?.name
+
+        val publicacoes = repository.buscarPublicacoesPorEmpresaEmail(email!!)
 
         return publicacoes
     }
@@ -32,19 +40,19 @@ class PublicacaoServiceImpl(
     override fun findById(id: Long): Publicacao = repository.findById(id)
 
     override fun editarPublicacao(id: Long, data: Publicacao) {
-        val publicacao = repository.findById(id)
+        val auth = SecurityContextHolder.getContext().authentication
 
-        val publicacaoEditada = Publicacao(
-            titulo = data.titulo ?: publicacao.titulo,
-            descricao = data.descricao ?: publicacao.descricao,
-            tipoContrato = data.tipoContrato ?: publicacao.tipoContrato,
-            dtExpiracao = data.dtExpiracao ?: publicacao.dtExpiracao
-        )
+        val email = auth?.name
 
-        repository.criar(publicacaoEditada)
+        repository.atualizar(data, email!!)
     }
 
-    override fun delete(id: Long) = repository.delete(id)
+    override fun delete(id: Long) {
+        val auth = SecurityContextHolder.getContext().authentication
+        val email = auth?.name
+
+        repository.delete(id, email!!)
+    }
 
     private fun validatePageAndSize(page: Int, size: Int) {
         if (page < 1) throw InvalidPageNumberException("A página $page não foi encontrada")

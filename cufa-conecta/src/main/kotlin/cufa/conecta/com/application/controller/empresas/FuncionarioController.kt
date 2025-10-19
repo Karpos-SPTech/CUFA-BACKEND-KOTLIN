@@ -2,7 +2,6 @@ package cufa.conecta.com.application.controller.empresas
 
 import cufa.conecta.com.application.dto.request.empresa.FuncionarioRequestDto
 import cufa.conecta.com.application.dto.response.empresa.FuncionarioResponseDto
-import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.application.exception.FuncionarioNotExistsException
 import cufa.conecta.com.domain.service.empresa.FuncionarioService
 import jakarta.validation.Valid
@@ -19,17 +18,13 @@ class FuncionarioController(
     fun criar(@RequestBody @Valid dto: FuncionarioRequestDto) {
         val funcionarioData = dto.toModel()
 
-        runCatching {
-            service.criarFuncionario(funcionarioData)
-        }.getOrElse {
-            throw CreateInternalServerError("Falha ao cadastrar o funcionário!!")
-        }
+        service.criarFuncionario(funcionarioData)
     }
 
-    @GetMapping("/{fkEmpresa}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun listarPorEmpresa(@PathVariable fkEmpresa: Long): List<FuncionarioResponseDto> {
-        val funcionariosEncontrados = service.buscarPeloEmpresaId(fkEmpresa)
+    fun listarPorEmpresa(): List<FuncionarioResponseDto> {
+        val funcionariosEncontrados = service.buscarFuncionarios()
 
         if (funcionariosEncontrados.isEmpty())
             throw FuncionarioNotExistsException("Não há nenhum funcionario cadastrado!!")

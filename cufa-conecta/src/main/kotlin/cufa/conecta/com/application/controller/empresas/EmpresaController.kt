@@ -3,12 +3,13 @@ package cufa.conecta.com.application.controller.empresas
 import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.request.empresa.BiografiaRequestDto
 import cufa.conecta.com.application.dto.request.empresa.EmpresaRequestDto
+import cufa.conecta.com.application.dto.request.empresa.EmpresaUpdateRequestDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaResponseDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
-import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.application.exception.EmpresaNotExistsException
 import cufa.conecta.com.domain.service.empresa.EmpresaService
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -19,39 +20,57 @@ class EmpresaController(
     private val service: EmpresaService
 ) {
     @PostMapping
-    @SecurityRequirement(name = "bearer")
     @ResponseStatus(HttpStatus.CREATED)
     fun cadastrar(@RequestBody @Valid dto: EmpresaRequestDto) {
         val empresaData = dto.toModel()
 
-        runCatching {
-            service.cadastrarEmpresa(empresaData)
-        }.getOrElse {
-            throw CreateInternalServerError("Falha ao cadastrar a empresa!!")
-        }
+        service.cadastrarEmpresa(empresaData)
     }
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    fun login(@RequestBody loginDto: LoginDto): EmpresaTokenDto {
+    fun login(
+        @RequestBody @Valid loginDto: LoginDto,
+        response: HttpServletResponse
+    ): EmpresaTokenDto {
         val empresaData = loginDto.toModel()
 
         val empresaToken = service.autenticar(empresaData)
+
+        val cookie = Cookie("jwt", empresaToken.tokenJwt)
+        cookie.isHttpOnly = true
+//        cookie.secure = true
+        cookie.path = "/"
+        cookie.maxAge = 60 * 60 * 24 * 7
+
+        response.addCookie(cookie)
 
         return EmpresaTokenDto(
             nome = empresaToken.nome,
             email = empresaToken.email,
             tokenJwt = null
-            //TODO validar o cookie
         )
     }
 
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun logout(response: HttpServletResponse) {
+        val cookie = Cookie("jwt", null)
+        cookie.isHttpOnly = true
+//        cookie.secure = true
+        cookie.path = "/"
+        cookie.maxAge = 0
+
+        response.addCookie(cookie)
+    }
+
     @GetMapping
-    @SecurityRequirement(name = "bearer")
     fun listarEmpresas(): List<EmpresaResponseDto> {
         val empresasEncontradas = service.listarTodos()
 
-        if (empresasEncontradas.isEmpty()) { throw EmpresaNotExistsException("Não há nenhuma empresa cadastrada!") }
+        if (empresasEncontradas.isEmpty()) {
+            throw EmpresaNotExistsException("Não há nenhuma empresa cadastrada!")
+        }
 
         val result = EmpresaResponseDto.listOf(empresasEncontradas)
 
@@ -59,7 +78,6 @@ class EmpresaController(
     }
 
     @GetMapping("/{id}")
-    @SecurityRequirement(name = "Bearer")
     fun buscarPorId(@PathVariable id: Long): EmpresaResponseDto {
         val empresaData = service.mostrarDados(id)
 
@@ -69,16 +87,17 @@ class EmpresaController(
     }
 
     @PutMapping
-    @SecurityRequirement(name = "Bearer")
-    fun atualizar(@RequestBody @Valid dto: EmpresaRequestDto) {
+    fun atualizar(@RequestBody @Valid dto: EmpresaUpdateRequestDto) {
         val empresaAtualizada = dto.toModel()
 
         service.atualizarDados(empresaAtualizada)
     }
 
     @PatchMapping("/biografia")
-    @SecurityRequirement(name = "Bearer")
-    fun adicionarBiografia(@RequestBody @Valid dto: BiografiaRequestDto) =
-       service.atualizarBiografia(dto.toString())
+    fun adicionarBiografia(@RequestBody @Valid dto: BiografiaRequestDto) {
 
+        val data = dto.toModel()
+
+        service.atualizarBiografia(data)
+    }
 }

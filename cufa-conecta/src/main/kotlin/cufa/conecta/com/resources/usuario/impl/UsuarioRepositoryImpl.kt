@@ -1,8 +1,10 @@
 package cufa.conecta.com.resources.usuario.impl
 
-import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
+import cufa.conecta.com.application.exception.UsuarioNotFoundException
 import cufa.conecta.com.config.GerenciadorTokenJwt
+import cufa.conecta.com.model.data.Login
 import cufa.conecta.com.model.data.Usuario
 import cufa.conecta.com.model.data.result.UsuarioResult
 import cufa.conecta.com.resources.empresa.exception.EmailExistenteException
@@ -11,11 +13,11 @@ import cufa.conecta.com.resources.usuario.UsuarioRepository
 import cufa.conecta.com.resources.usuario.dao.UsuarioDao
 import cufa.conecta.com.resources.usuario.entity.UsuarioEntity
 import cufa.conecta.com.resources.usuario.exception.UpdateCurriculoException
-import cufa.conecta.com.resources.usuario.exception.UsuarioExistenteException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.time.Period
@@ -25,14 +27,18 @@ class UsuarioRepositoryImpl(
     private val dao: UsuarioDao,
     private val gerenciadorTokenJwt: GerenciadorTokenJwt,
     private val authenticationManager: AuthenticationManager,
+    private val passwordEncoder: PasswordEncoder
 ): UsuarioRepository {
     override fun cadastrarUsuario(data: Usuario) {
-        validarEmailExistente(data.email!!)
+        val email = data.email!!
+        validarEmailExistente(email)
+
+        val senhaCriptografada = passwordEncoder.encode(data.senha)
 
         val usuario = UsuarioEntity(
             nome = data.nome,
-            email = data.email,
-            senha = data.senha,
+            email = email,
+            senha = senhaCriptografada,
             cpf = data.cpf,
             telefone = data.telefone,
             escolaridade = data.escolaridade,
@@ -44,15 +50,23 @@ class UsuarioRepositoryImpl(
             curriculoUrl = data.curriculoUrl
         )
 
-        dao.save(usuario)
+        runCatching {
+            dao.save(usuario)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar o usuário ${data.nome}!!")
+        }
     }
 
-    override fun autenticar(data: LoginDto): UsuarioTokenDto {
-        authenticateCredentials(data.email, data.senha)
+    override fun autenticar(data: Login): UsuarioTokenDto {
+        validarUsuario(data.email, data.senha)
 
         val usuarioAutenticado = buscarUsuarioPorEmail(data.email)
 
-        val authentication = UsernamePasswordAuthenticationToken(data.email, data.senha)
+        val authentication = UsernamePasswordAuthenticationToken(
+            usuarioAutenticado.email,
+            null,
+            emptyList()
+        )
 
         SecurityContextHolder.getContext().authentication = authentication
 
@@ -61,7 +75,7 @@ class UsuarioRepositoryImpl(
         return UsuarioTokenDto(
             nome = usuarioAutenticado.nome!!,
             email = usuarioAutenticado.email!!,
-            token = token
+            tokenJwt = token
         )
     }
 
@@ -71,12 +85,13 @@ class UsuarioRepositoryImpl(
         return mapearUsuario(usuarioEntity)
     }
 
-    override fun atualizar(data: Usuario) {
-        val usuarioExistente = buscarUsuarioPeloId(data.id!!)
+    override fun atualizar(data: Usuario, email: String) {
+        val usuarioExistente = buscarUsuarioPorEmail(email)
 
         val novoUsuario = UsuarioEntity(
-            nome = data.nome,
-            email = data.email,
+            id = usuarioExistente.id,
+            nome = usuarioExistente.nome,
+            email = usuarioExistente.email,
             senha = usuarioExistente.senha,
             cpf = data.cpf,
             telefone = data.telefone,
@@ -88,7 +103,11 @@ class UsuarioRepositoryImpl(
             biografia = data.biografia
         )
 
-        dao.save(novoUsuario)
+        runCatching {
+            dao.save(novoUsuario)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao atualizar o usuário ${data.nome}!!")
+        }
     }
 
     override fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?) {
@@ -101,20 +120,19 @@ class UsuarioRepositoryImpl(
 
     private fun buscarUsuarioPeloId(id: Long): UsuarioEntity =
         dao.findById(id)
-            .orElseThrow { throw UsuarioExistenteException("O usuario inserido já existe!!") }
+            .orElseThrow { throw UsuarioNotFoundException("O usuario não foi encontrado!!") }
 
     private fun validarEmailExistente(email: String) {
-        if (dao.existsByEmail(email)) {
+        if (dao.findByEmail(email).isPresent)
             throw EmailExistenteException("O email inserido já existe!!")
-        }
     }
 
-    private fun authenticateCredentials(email: String, password: String) {
-        val credentials: Authentication = UsernamePasswordAuthenticationToken(email, password)
+    private fun validarUsuario(email: String, senha: String) {
+        val credentials: Authentication = UsernamePasswordAuthenticationToken(email, senha)
 
-        authenticationManager.authenticate(credentials)
+        val authResult = authenticationManager.authenticate(credentials)
 
-        SecurityContextHolder.getContext().setAuthentication(credentials)
+        SecurityContextHolder.getContext().authentication = authResult
     }
 
     private fun buscarUsuarioPorEmail(email: String) = dao.findByEmail(email)

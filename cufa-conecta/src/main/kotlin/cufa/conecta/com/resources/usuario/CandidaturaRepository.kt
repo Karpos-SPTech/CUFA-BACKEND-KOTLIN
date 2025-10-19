@@ -5,8 +5,8 @@ import cufa.conecta.com.model.data.Publicacao
 import cufa.conecta.com.model.data.result.CandidaturaResult
 
 interface CandidaturaRepository {
-    fun criarCandidatura(data: Candidatura)
-    fun listarDadosDaVaga(id: Long, page: Int, size: Int): CandidaturaResult
-    fun verificarCandidaturaExistente(userId: Long, vagaId: Long): Boolean
-    fun listarPublicacoesCandidatadasPorUsuario(id: Long): List<Publicacao>
+    fun criarCandidatura(data: Candidatura, email: String)
+    fun listarCandidatosPorVaga(vagaId: Long, page: Int, size: Int, email: String): CandidaturaResult
+    fun verificarCandidaturaExistente(vagaId: Long, email: String): Boolean
+    fun listarPublicacoesCandidatadasPorUsuario(email: String): List<Publicacao>
 }

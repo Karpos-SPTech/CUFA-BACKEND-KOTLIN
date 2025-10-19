@@ -1,9 +1,11 @@
 package cufa.conecta.com.resources.empresa.impl
 
-import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
+import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.config.GerenciadorTokenJwt
+import cufa.conecta.com.model.data.Biografia
 import cufa.conecta.com.model.data.Empresa
+import cufa.conecta.com.model.data.Login
 import cufa.conecta.com.model.data.result.EmpresaResult
 import cufa.conecta.com.resources.empresa.EmpresaRepository
 import cufa.conecta.com.resources.empresa.dao.EmpresaDao
@@ -12,7 +14,9 @@ import cufa.conecta.com.resources.empresa.exception.EmailExistenteException
 import cufa.conecta.com.resources.empresa.exception.EmpresaNotFoundException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
@@ -20,18 +24,20 @@ import java.time.LocalDate
 class EmpresaRepositoryImpl (
     private val dao: EmpresaDao,
     private val gerenciadorTokenJwt : GerenciadorTokenJwt,
-    private val authenticationManager : AuthenticationManager
+    private val authenticationManager : AuthenticationManager,
+    private val passwordEncoder: PasswordEncoder
 ): EmpresaRepository {
 
     override fun cadastrarEmpresa(data: Empresa) {
-
-        val email = data.email
+        val email = data.email!!
         validarEmailExistente(email)
+
+        val senhaCriptografada = passwordEncoder.encode(data.senha)
 
         val empresaEntity = EmpresaEntity(
             nome = data.nome,
             email = email,
-            senha = data.senha,
+            senha = senhaCriptografada,
             cep = data.cep,
             numero = data.numero,
             endereco = data.endereco,
@@ -40,19 +46,20 @@ class EmpresaRepositoryImpl (
             dtCadastro = LocalDate.now()
         )
 
-        dao.save(empresaEntity)
+        runCatching {
+            dao.save(empresaEntity)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar a empresa!!")
+        }
     }
 
-    override fun autenticar(dadosLogin: LoginDto): EmpresaTokenDto {
-        val email = dadosLogin.email
-        val senha = dadosLogin.senha
+    override fun autenticar(dto: Login): EmpresaTokenDto {
+        validarEmpresa(dto.email, dto.senha)
 
-        validarEmpresa(email, senha)
-
-        val empresaAutenticada = buscarEmpresaPorEmail(email)
+        val empresaAutenticada = buscarEmpresaPorEmail(dto.email)
 
         val dadosAutenticados = UsernamePasswordAuthenticationToken(
-            empresaAutenticada,
+            empresaAutenticada.email,
             null,
             emptyList()
         )
@@ -80,15 +87,14 @@ class EmpresaRepositoryImpl (
         return mapearEmpresa(empresaEntity)
     }
 
-    override fun atualizarDados(data: Empresa) {
-        buscarEmpresaPorId(data.id!!)
-
-        validarEmailExistente(data.email)
+    override fun atualizarDados(data: Empresa, email: String) {
+        val empresaExistente = buscarEmpresaPorEmail(email)
 
         val empresaAtualizada = EmpresaEntity(
+            idEmpresa = empresaExistente.idEmpresa,
             nome = data.nome,
-            email = data.email,
-            senha = data.senha,
+            email = empresaExistente.email,
+            senha = empresaExistente.senha,
             cep = data.cep,
             numero = data.numero,
             endereco = data.endereco,
@@ -96,16 +102,28 @@ class EmpresaRepositoryImpl (
             area = data.area
         )
 
-        dao.save(empresaAtualizada)
+        runCatching {
+            dao.save(empresaAtualizada)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao atualizar os dados da empresa: ${data.nome}!!")
+        }
     }
 
-    override fun atualizarBiografia(texto: String) = dao.atualizarBiografia(texto)
+    override fun atualizarBiografia(data: Biografia, email: String) {
+        val empresa = buscarEmpresaPorEmail(email)
+
+        runCatching {
+            dao.atualizarBiografia(data.texto, empresa.idEmpresa!!)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao tentar inserir a biografia!!")
+        }
+    }
 
 
     private fun validarEmpresa(email: String, senha: String) {
-        val authRequest = UsernamePasswordAuthenticationToken(email, senha)
+        val credentials: Authentication = UsernamePasswordAuthenticationToken(email, senha)
 
-        val authResult = authenticationManager.authenticate(authRequest)
+        val authResult = authenticationManager.authenticate(credentials)
 
         SecurityContextHolder.getContext().authentication = authResult
     }
@@ -115,7 +133,7 @@ class EmpresaRepositoryImpl (
             .orElseThrow { EmpresaNotFoundException("Email do usuário não encontrado") }
 
 
-    private fun  validarEmailExistente(email: String) {
+    private fun validarEmailExistente(email: String) {
         if (dao.existsByEmail(email)) {
             throw EmailExistenteException("O email inserido já existe!!")
         }
@@ -150,7 +168,7 @@ class EmpresaRepositoryImpl (
                 numero = entity.numero,
                 cnpj = entity.cnpj,
                 area = entity.area,
-                biografia = entity.biografia!!
+                biografia = entity.biografia
             )
         }
     }

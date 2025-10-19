@@ -13,7 +13,7 @@ data class FuncionarioResponseDto(
                 FuncionarioResponseDto(
                     nome = data.nome,
                     email = data.email,
-                    cargo = data.cargo.toString()
+                    cargo = data.cargo.name
                 )
             }
         }

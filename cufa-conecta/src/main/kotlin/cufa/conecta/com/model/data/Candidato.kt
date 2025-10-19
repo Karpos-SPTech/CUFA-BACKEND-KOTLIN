@@ -6,6 +6,6 @@ data class Candidato(
     private val biografia: String,
     private val email: String,
     private val telefone: String,
-    private val curriculoUrl: String,
+    private val curriculoUrl: String? = null,
     private val experiencias: List<Experiencia>
 )

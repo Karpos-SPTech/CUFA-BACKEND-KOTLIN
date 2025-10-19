@@ -10,7 +10,7 @@ data class EmpresaResponseDto(
     val numero: String,
     val cnpj: String,
     val area: String,
-    val biografia: String
+    val biografia: String ?= null
 ) {
     companion object {
         fun listOf(empresasResult: List<EmpresaResult>): List<EmpresaResponseDto> {

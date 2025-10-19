@@ -15,11 +15,11 @@ import java.time.LocalDate
 data class CandidaturaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_candidatura")
     val id: Long? = null,
 
-    @ManyToOne
-    @JoinColumn(name = "fk_usuario", referencedColumnName = "id_usuario")
-    val usuario: UsuarioEntity,
+    @Column(name = "id_usuario")
+    val usuarioId: Long,
 
     @ManyToOne
     @JoinColumn(name = "fk_publicacao", referencedColumnName = "id_publicacao")

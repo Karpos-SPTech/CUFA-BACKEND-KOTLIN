@@ -3,8 +3,8 @@ package cufa.conecta.com.resources.usuario
 import cufa.conecta.com.model.data.Experiencia
 
 interface ExperienciaRepository {
-    fun criarExperiencia(data: Experiencia)
-    fun listarPorUsuario(id: Long): List<Experiencia>
-    fun atualizar(data: Experiencia)
-    fun deletarExperiencia(id: Long)
+    fun criarExperiencia(data: Experiencia, email: String)
+    fun listarPorUsuario(email: String): List<Experiencia>
+    fun atualizar(data: Experiencia, email: String)
+    fun deletarExperiencia(id: Long, email: String)
 }

@@ -25,6 +25,6 @@ data class FuncionarioRequestDto(
         nome = nome,
         email = email,
         senha = senha,
-        cargo = Cargo.fromString(cargo)
+        cargo = Cargo.fromString(cargo.uppercase())
     )
 }

@@ -8,5 +8,5 @@ data class EmpresaResult (
     val numero: String,
     val cnpj: String,
     val area: String,
-    val biografia: String
+    val biografia: String ?= null
 )

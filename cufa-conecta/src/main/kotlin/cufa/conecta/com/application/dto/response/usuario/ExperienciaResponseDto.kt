@@ -13,10 +13,10 @@ data class ExperienciaResponseDto (
         fun listOf(listaDeExperiencias: List<Experiencia>): List<ExperienciaResponseDto> {
             return listaDeExperiencias.map { data ->
                 ExperienciaResponseDto(
-                    cargo = data.cargo,
-                    empresa = data.empresa,
-                    dtInicio = data.dtInicio,
-                    dtFim = data.dtFim
+                    cargo = data.cargo!!,
+                    empresa = data.empresa!!,
+                    dtInicio = data.dtInicio!!,
+                    dtFim = data.dtFim!!
                 )
             }
         }

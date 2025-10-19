@@ -5,8 +5,8 @@ import java.time.LocalDate
 data class Experiencia (
     val id: Long?= null,
     val usuarioId: Long? = null,
-    val cargo: String,
-    val empresa: String,
-    val dtInicio: LocalDate,
-    val dtFim: LocalDate
+    val cargo: String? = null,
+    val empresa: String? = null,
+    val dtInicio: LocalDate? = null,
+    val dtFim: LocalDate? = null
 )

@@ -1,29 +1,42 @@
 package cufa.conecta.com.resources.usuario.impl
 
+import cufa.conecta.com.application.exception.CreateInternalServerError
+import cufa.conecta.com.application.exception.UsuarioNotFoundException
 import cufa.conecta.com.model.data.Experiencia
 import cufa.conecta.com.resources.usuario.ExperienciaRepository
 import cufa.conecta.com.resources.usuario.dao.ExperienciaDao
+import cufa.conecta.com.resources.usuario.dao.UsuarioDao
 import cufa.conecta.com.resources.usuario.entity.ExperienciaEntity
+import cufa.conecta.com.resources.usuario.entity.UsuarioEntity
 import org.springframework.stereotype.Repository
 
 @Repository
 class ExperienciaRepositoryImpl(
-    private val dao: ExperienciaDao
+    private val dao: ExperienciaDao,
+    private val usuarioDao: UsuarioDao
 ): ExperienciaRepository {
-    override fun criarExperiencia(data: Experiencia) {
+    override fun criarExperiencia(data: Experiencia, email: String) {
+        val usuario = buscarUsuarioPeloEmail(email)
+
         val experienciaEntity = ExperienciaEntity(
-            usuarioId = data.usuarioId,
-            cargo = data.cargo,
-            empresa = data.empresa,
-            dtInicio = data.dtInicio,
-            dtFim = data.dtFim
+            usuarioId = usuario.id!!,
+            cargo = data.cargo!!,
+            empresa = data.empresa!!,
+            dtInicio = data.dtInicio!!,
+            dtFim = data.dtFim!!
         )
 
-        dao.save(experienciaEntity)
+        runCatching {
+            dao.save(experienciaEntity)
+        }.getOrElse {
+            throw CreateInternalServerError("Falha ao cadastrar a experiência!!")
+        }
     }
 
-    override fun listarPorUsuario(id: Long): List<Experiencia> {
-        val listaDeExperienciasEntity = dao.findByUsuarioId(id)
+    override fun listarPorUsuario(email: String): List<Experiencia> {
+        val usuario = buscarUsuarioPeloEmail(email)
+
+        val listaDeExperienciasEntity = dao.findByUsuarioId(usuario.id!!)
 
         val listaDeExperiencias = mutableListOf<Experiencia>()
 
@@ -41,26 +54,39 @@ class ExperienciaRepositoryImpl(
         return listaDeExperiencias
     }
 
-    override fun atualizar(data: Experiencia) {
-        buscarExperienciaPeloId(data.id!!)
+    override fun atualizar(data : Experiencia, email: String) {
+        val usuario = buscarUsuarioPeloEmail(email)
+        val experienciaAntiga = buscarExperienciaPeloId(data.id!!)
 
         val novaExperiencia = ExperienciaEntity(
-            cargo = data.cargo,
-            empresa = data.empresa,
-            dtInicio = data.dtInicio,
-            dtFim = data.dtFim
+            cargo = data.cargo ?: experienciaAntiga.cargo,
+            empresa = data.empresa ?: experienciaAntiga.empresa,
+            dtInicio = data.dtInicio ?: experienciaAntiga.dtInicio,
+            dtFim = data.dtFim ?: experienciaAntiga.dtFim
         )
 
-        dao.save(novaExperiencia)
+        dao.atualizarExperiencia(
+            novaExperiencia.id!!,
+            usuario.id!!,
+            novaExperiencia.cargo,
+            novaExperiencia.empresa,
+            novaExperiencia.dtInicio,
+            novaExperiencia.dtFim
+        )
     }
 
-    override fun deletarExperiencia(id: Long) {
+    override fun deletarExperiencia(id: Long, email: String) {
+        val usuario = buscarUsuarioPeloEmail(email)
         val experiencia = buscarExperienciaPeloId(id)
 
-        dao.delete(experiencia)
+        dao.deletarExperiencia(experiencia.id!!, usuario.id!!)
     }
 
     private fun buscarExperienciaPeloId(id: Long): ExperienciaEntity =
         dao.findById(id)
             .orElseThrow { RuntimeException("Experiencia pelo ID: $id") }
+
+    private fun buscarUsuarioPeloEmail(email: String): UsuarioEntity =
+        usuarioDao.findByEmail(email)
+            .orElseThrow { UsuarioNotFoundException("O usuário com o email $email não existe") }
 }

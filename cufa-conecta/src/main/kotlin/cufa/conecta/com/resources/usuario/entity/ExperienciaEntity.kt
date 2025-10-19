@@ -1,22 +1,16 @@
 package cufa.conecta.com.resources.usuario.entity
 
-import cufa.conecta.com.application.dto.request.usuario.ExperienciaRequestDto
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import java.time.LocalDate
 
-@Entity
+@Entity(name = "experiencias")
 data class ExperienciaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_experiencia")
     val id: Long? = null,
 
-    @Column(name = "fk_usuario")
+    @Column(name = "id_usuario")
     var usuarioId: Long? = null,
 
     val cargo: String,

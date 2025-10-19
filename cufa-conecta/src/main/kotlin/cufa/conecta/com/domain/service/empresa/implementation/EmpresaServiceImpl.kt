@@ -1,11 +1,13 @@
 package cufa.conecta.com.domain.service.empresa.implementation
 
-import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.response.empresa.EmpresaTokenDto
 import cufa.conecta.com.domain.service.empresa.EmpresaService
+import cufa.conecta.com.model.data.Biografia
 import cufa.conecta.com.model.data.Empresa
+import cufa.conecta.com.model.data.Login
 import cufa.conecta.com.model.data.result.EmpresaResult
 import cufa.conecta.com.resources.empresa.EmpresaRepository
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,13 +16,25 @@ class EmpresaServiceImpl(
 ): EmpresaService {
     override fun cadastrarEmpresa(data: Empresa) = repository.cadastrarEmpresa(data)
 
-    override fun autenticar(dadosLogin: LoginDto): EmpresaTokenDto = repository.autenticar(dadosLogin)
+    override fun autenticar(dadosLogin: Login): EmpresaTokenDto = repository.autenticar(dadosLogin)
 
     override fun listarTodos(): List<EmpresaResult> = repository.listarTodos()
 
     override fun mostrarDados(id: Long): EmpresaResult = repository.mostrarDados(id)
 
-    override fun atualizarDados(data: Empresa) = repository.atualizarDados(data)
+    override fun atualizarDados(data: Empresa) {
+        val auth = SecurityContextHolder.getContext().authentication
 
-    override fun atualizarBiografia(texto: String) = repository.atualizarBiografia(texto)
+        val email = auth?.name
+
+        repository.atualizarDados(data, email!!)
+    }
+
+    override fun atualizarBiografia(texto: Biografia) {
+        val auth = SecurityContextHolder.getContext().authentication
+
+        val email = auth?.name
+
+        repository.atualizarBiografia(texto, email!!)
+    }
 }

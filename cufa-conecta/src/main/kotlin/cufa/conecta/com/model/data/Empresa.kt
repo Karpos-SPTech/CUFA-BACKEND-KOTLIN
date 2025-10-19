@@ -3,8 +3,8 @@ package cufa.conecta.com.model.data
 data class Empresa(
     val id: Long? = null,
     val nome: String,
-    val email: String,
-    val senha: String,
+    val email: String?= null,
+    val senha: String?= null,
     val cep: String,
     val endereco: String,
     val numero: String,

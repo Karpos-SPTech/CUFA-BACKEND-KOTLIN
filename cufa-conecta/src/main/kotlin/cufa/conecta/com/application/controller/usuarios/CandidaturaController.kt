@@ -3,9 +3,8 @@ package cufa.conecta.com.application.controller.usuarios
 import cufa.conecta.com.application.dto.request.usuario.CandidaturaRequestDto
 import cufa.conecta.com.application.dto.response.empresa.PublicacaoResponseDto
 import cufa.conecta.com.application.dto.response.usuario.CandidaturaResponseDto
-import cufa.conecta.com.application.exception.CreateInternalServerError
 import cufa.conecta.com.domain.service.usuario.CandidaturaService
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -15,16 +14,11 @@ class CandidaturaController(
     private val service: CandidaturaService
 ) {
     @PostMapping
-    @SecurityRequirement(name = "Bearer")
     @ResponseStatus(HttpStatus.CREATED)
-    fun criarCandidatura(@RequestBody dto: CandidaturaRequestDto) {
+    fun criarCandidatura(@RequestBody @Valid dto: CandidaturaRequestDto) {
         val data = dto.toModel()
 
-        runCatching {
-            service.criarCandidatura(data)
-        }.getOrElse {
-            throw CreateInternalServerError("Falha ao criar a candidatura!!")
-        }
+        service.criarCandidatura(data)
     }
 
     @GetMapping("/{vagaId}")
@@ -34,25 +28,23 @@ class CandidaturaController(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int
     ): CandidaturaResponseDto {
-        val candidatura = service.listarDadosDaVaga(vagaId, page, size)
+        val candidatura = service.listarCandidatosPorVaga(vagaId, page, size)
 
         val result = CandidaturaResponseDto.of(candidatura)
 
         return result
     }
 
-    @GetMapping("/verificar/{userId}/{vagaId}")
-    @SecurityRequirement(name = "Bearer")
-    fun verificarCandidaturaExistente(@PathVariable userId: Long, @PathVariable vagaId: Long): Boolean {
-        val candidaturaExistente = service.verificarCandidaturaExistente(userId, vagaId)
+    @GetMapping("/verificar/{vagaId}")
+    fun verificarCandidaturaExistente(@PathVariable vagaId: Long): Boolean {
+        val candidaturaExistente = service.verificarCandidaturaExistente(vagaId)
 
         return candidaturaExistente
     }
 
-    @GetMapping("/usuario/{userId}")
-    @SecurityRequirement(name = "Bearer")
-    fun verCandidaturasPorUsuario(@PathVariable userId: Long): List<PublicacaoResponseDto> {
-        val listaDeVagasCandidatas = service.listarPublicacoesCandidatadasPorUsuario(userId)
+    @GetMapping("/usuario")
+    fun verCandidaturasPorUsuario(): List<PublicacaoResponseDto> {
+        val listaDeVagasCandidatas = service.listarPublicacoesCandidatadasPorUsuario()
 
         val result = PublicacaoResponseDto.listOf(listaDeVagasCandidatas)
 

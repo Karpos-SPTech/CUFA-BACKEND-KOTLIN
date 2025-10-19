@@ -7,6 +7,6 @@ data class Funcionario (
     val empresaId: Long ?= null,
     val nome: String,
     val email: String,
-    val senha: String,
+    val senha: String?= null,
     val cargo: Cargo
 )

@@ -3,6 +3,7 @@ package cufa.conecta.com.config
 import cufa.conecta.com.application.exception.UsuarioNotFoundException
 import cufa.conecta.com.resources.AutenticacaoRepository
 import jakarta.servlet.FilterChain
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -21,16 +22,16 @@ class AutenticacaoFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val requestTokenHeader = request.getHeader("Authorization")
+        val jwtToken = recuperarToken(request)
 
-        if (isBearerToken(requestTokenHeader)) {
-            val jwtToken = extractToken(requestTokenHeader!!)
-
+        if (jwtToken != null) {
             val username = runCatching { jwtTokenManager.getUsernameFromToken(jwtToken) }
-                .getOrElse { throw UsuarioNotFoundException("User not found") }
+                .getOrElse { throw UsuarioNotFoundException("Usuário não encontrado") }
 
-            if (SecurityContextHolder.getContext().authentication == null) addUsernameInContext(request, username, jwtToken)
+            if (SecurityContextHolder.getContext().authentication == null)
+                addUsernameInContext(request, username, jwtToken)
         }
+
         filterChain.doFilter(request, response)
     }
 
@@ -43,16 +44,20 @@ class AutenticacaoFilter(
 
         if (jwtTokenManager.validateToken(jwtToken, userDetails)) {
             val authToken = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
-
             authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-
             SecurityContextHolder.getContext().authentication = authToken
         }
     }
 
-    private fun isBearerToken(tokenHeader: String?): Boolean {
-        return tokenHeader != null && tokenHeader.startsWith("Bearer ")
-    }
+    private fun recuperarToken(request: HttpServletRequest): String? {
+        // 1️⃣ Tenta pegar do Header Authorization
+        val header = request.getHeader("Authorization")
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7)
+        }
 
-    private fun extractToken(tokenHeader: String): String = tokenHeader.substring(7)
+        // 2️⃣ Se não tiver no header, tenta pegar do cookie "jwt"
+        val cookieJwt: Cookie? = request.cookies?.find { it.name == "jwt" }
+        return cookieJwt?.value
+    }
 }
