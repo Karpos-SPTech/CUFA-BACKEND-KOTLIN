@@ -91,23 +91,15 @@ class SecurityConfiguracao(
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val configuration = CorsConfiguration().applyPermitDefaultValues()
-        configuration.allowedMethods =
-            listOf(
-                HttpMethod.GET.name(),
-                HttpMethod.POST.name(),
-                HttpMethod.PUT.name(),
-                HttpMethod.PATCH.name(),
-                HttpMethod.DELETE.name(),
-                HttpMethod.OPTIONS.name(),
-                HttpMethod.HEAD.name(),
-                HttpMethod.TRACE.name()
-            )
-        configuration.exposedHeaders = listOf(HttpHeaders.CONTENT_DISPOSITION)
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = listOf("http://localhost:5173") // frontend
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        configuration.exposedHeaders = listOf("Authorization", "Content-Disposition")
 
         val urlBasedCorsSource = UrlBasedCorsConfigurationSource()
         urlBasedCorsSource.registerCorsConfiguration("/**", configuration)
-
         return urlBasedCorsSource
     }
 
