@@ -5,6 +5,5 @@ CREATE TABLE publicacao (
     descricao TEXT,
     tipo_contrato VARCHAR(10),
     dt_expiracao DATETIME,
-    dt_publicacao DATETIME,
-    FOREIGN KEY (fk_empresa) REFERENCES cadastro_empresa(id_empresa)
+    dt_publicacao DATETIME
 );
