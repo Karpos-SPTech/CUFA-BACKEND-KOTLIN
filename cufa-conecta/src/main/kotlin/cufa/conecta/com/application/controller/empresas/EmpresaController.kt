@@ -64,7 +64,7 @@ class EmpresaController(
         response.addCookie(cookie)
     }
 
-    @GetMapping
+    @GetMapping("/all")
     fun listarEmpresas(): List<EmpresaResponseDto> {
         val empresasEncontradas = service.listarTodos()
 
