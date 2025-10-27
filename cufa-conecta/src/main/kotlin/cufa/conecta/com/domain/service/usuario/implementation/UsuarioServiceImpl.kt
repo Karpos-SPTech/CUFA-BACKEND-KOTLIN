@@ -17,7 +17,14 @@ class UsuarioServiceImpl(
 
     override fun autenticar(data: Login): UsuarioTokenDto = repository.autenticar(data)
 
-    override fun mostrarDados(id: Long): UsuarioResult = repository.mostrarDados(id)
+    override fun mostrarDados(): UsuarioResult {
+        val auth = SecurityContextHolder.getContext().authentication
+        val email = auth?.name
+
+        val dadosUsuario = repository.mostrarDados(email!!)
+
+        return dadosUsuario
+    }
 
     override fun atualizar(data: Usuario) {
         val auth = SecurityContextHolder.getContext().authentication

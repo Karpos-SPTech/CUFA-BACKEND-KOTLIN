@@ -77,9 +77,9 @@ class EmpresaController(
         return result
     }
 
-    @GetMapping("/{id}")
-    fun buscarPorId(@PathVariable id: Long): EmpresaResponseDto {
-        val empresaData = service.mostrarDados(id)
+    @GetMapping
+    fun buscarDados(): EmpresaResponseDto {
+        val empresaData = service.mostrarDados()
 
         val result = EmpresaResponseDto.of(empresaData)
 

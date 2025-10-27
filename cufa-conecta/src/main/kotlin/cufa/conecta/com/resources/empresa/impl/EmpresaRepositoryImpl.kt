@@ -81,8 +81,8 @@ class EmpresaRepositoryImpl (
         return mapearEmpresas(listaDeEmpresasEntity)
     }
 
-    override fun mostrarDados(id: Long): EmpresaResult {
-        val empresaEntity = buscarEmpresaPorId(id)
+    override fun mostrarDados(email: String): EmpresaResult {
+        val empresaEntity = buscarEmpresaPorEmail(email)
 
         return mapearEmpresa(empresaEntity)
     }
@@ -138,10 +138,6 @@ class EmpresaRepositoryImpl (
             throw EmailExistenteException("O email inserido já existe!!")
         }
     }
-
-    private fun buscarEmpresaPorId(id: Long): EmpresaEntity =
-        dao.findById(id)
-            .orElseThrow { EmpresaNotFoundException("Empresa não encontrada") }
 
     private fun mapearEmpresa(entity: EmpresaEntity): EmpresaResult {
         val empresa = EmpresaResult(

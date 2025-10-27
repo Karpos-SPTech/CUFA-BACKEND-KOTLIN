@@ -3,6 +3,7 @@ package cufa.conecta.com.application.controller.usuarios
 import cufa.conecta.com.application.dto.request.LoginDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioCadastroRequestDto
 import cufa.conecta.com.application.dto.request.usuario.UsuarioUpdateRequestDto
+import cufa.conecta.com.application.dto.response.usuario.UsuarioResponseDto
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
 import cufa.conecta.com.domain.service.usuario.UsuarioService
 import jakarta.servlet.http.Cookie
@@ -60,6 +61,15 @@ class UsuarioController(
         response.addCookie(cookie)
     }
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun mostrarDadosUsuario(): UsuarioResponseDto {
+        val usuarioData = service.mostrarDados()
+
+        val result = UsuarioResponseDto.of(usuarioData)
+
+        return result
+    }
     @PutMapping
     fun incrementarDadosDoUsuarios(@RequestBody @Valid dto: UsuarioUpdateRequestDto) {
         val usuarioAtualizado = dto.toModel()

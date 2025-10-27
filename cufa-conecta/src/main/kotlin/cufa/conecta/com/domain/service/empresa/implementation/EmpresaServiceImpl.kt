@@ -20,7 +20,14 @@ class EmpresaServiceImpl(
 
     override fun listarTodos(): List<EmpresaResult> = repository.listarTodos()
 
-    override fun mostrarDados(id: Long): EmpresaResult = repository.mostrarDados(id)
+    override fun mostrarDados(): EmpresaResult {
+        val auth = SecurityContextHolder.getContext().authentication
+        val email = auth?.name
+
+        val dadosEmpresa = repository.mostrarDados(email!!)
+
+        return dadosEmpresa
+    }
 
     override fun atualizarDados(data: Empresa) {
         val auth = SecurityContextHolder.getContext().authentication

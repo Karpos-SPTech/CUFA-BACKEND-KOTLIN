@@ -2,7 +2,6 @@ package cufa.conecta.com.resources.usuario.impl
 
 import cufa.conecta.com.application.dto.response.usuario.UsuarioTokenDto
 import cufa.conecta.com.application.exception.CreateInternalServerError
-import cufa.conecta.com.application.exception.UsuarioNotFoundException
 import cufa.conecta.com.config.GerenciadorTokenJwt
 import cufa.conecta.com.model.data.Login
 import cufa.conecta.com.model.data.Usuario
@@ -79,8 +78,8 @@ class UsuarioRepositoryImpl(
         )
     }
 
-    override fun mostrarDados(id: Long): UsuarioResult {
-        val usuarioEntity = buscarUsuarioPeloId(id)
+    override fun mostrarDados(email: String): UsuarioResult {
+        val usuarioEntity = buscarUsuarioPorEmail(email)
 
         return mapearUsuario(usuarioEntity)
     }
@@ -117,10 +116,6 @@ class UsuarioRepositoryImpl(
             throw UpdateCurriculoException("Falha ao atualizar o curriculo!!")
         }
     }
-
-    private fun buscarUsuarioPeloId(id: Long): UsuarioEntity =
-        dao.findById(id)
-            .orElseThrow { throw UsuarioNotFoundException("O usuario não foi encontrado!!") }
 
     private fun validarEmailExistente(email: String) {
         if (dao.findByEmail(email).isPresent)

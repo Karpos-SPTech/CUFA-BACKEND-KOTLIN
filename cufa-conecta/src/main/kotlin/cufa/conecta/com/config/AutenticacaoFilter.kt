@@ -1,6 +1,5 @@
 package cufa.conecta.com.config
 
-import cufa.conecta.com.application.exception.UsuarioNotFoundException
 import cufa.conecta.com.resources.AutenticacaoRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.Cookie
@@ -25,8 +24,12 @@ class AutenticacaoFilter(
         val jwtToken = recuperarToken(request)
 
         if (jwtToken != null) {
-            val username = runCatching { jwtTokenManager.getUsernameFromToken(jwtToken) }
-                .getOrElse { throw UsuarioNotFoundException("Usuário não encontrado") }
+            val username = runCatching {
+                jwtTokenManager.getUsernameFromToken(jwtToken)
+            }.getOrElse {
+
+                return
+            }
 
             if (SecurityContextHolder.getContext().authentication == null)
                 addUsernameInContext(request, username, jwtToken)

@@ -10,7 +10,7 @@ interface EmpresaService {
     fun cadastrarEmpresa(data: Empresa)
     fun autenticar(dadosLogin: Login): EmpresaTokenDto
     fun listarTodos(): List<EmpresaResult>
-    fun mostrarDados(id: Long): EmpresaResult
+    fun mostrarDados(): EmpresaResult
     fun atualizarDados(data: Empresa)
     fun atualizarBiografia(texto: Biografia)
 }

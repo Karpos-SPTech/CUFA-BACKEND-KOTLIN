@@ -8,7 +8,7 @@ import cufa.conecta.com.model.data.result.UsuarioResult
 interface UsuarioService {
     fun cadastrarUsuario(data: Usuario)
     fun autenticar(data: Login): UsuarioTokenDto
-    fun mostrarDados(id:Long): UsuarioResult
+    fun mostrarDados(): UsuarioResult
     fun atualizar(data: Usuario)
     fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?)
 }

@@ -10,7 +10,7 @@ interface EmpresaRepository {
     fun cadastrarEmpresa(data: Empresa)
     fun autenticar(dadosLogin: Login): EmpresaTokenDto
     fun listarTodos(): List<EmpresaResult>
-    fun mostrarDados(id: Long): EmpresaResult
+    fun mostrarDados(email: String): EmpresaResult
     fun atualizarDados(data: Empresa, email: String)
     fun atualizarBiografia(data: Biografia, email: String)
 }
