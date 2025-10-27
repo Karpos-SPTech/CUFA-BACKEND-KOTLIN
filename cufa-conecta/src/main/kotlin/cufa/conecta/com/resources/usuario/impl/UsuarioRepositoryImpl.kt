@@ -109,9 +109,10 @@ class UsuarioRepositoryImpl(
         }
     }
 
-    override fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?) {
+    override fun atualizarCurriculoUrl(email: String, curriculoUrl: String?) {
+        val userId = buscarUsuarioPorEmail(email)
         runCatching {
-            dao.atualizarCurriculoUrl(userId, curriculoUrl)
+            dao.atualizarCurriculoUrl(userId.id!!, curriculoUrl)
         }.getOrElse {
             throw UpdateCurriculoException("Falha ao atualizar o curriculo!!")
         }

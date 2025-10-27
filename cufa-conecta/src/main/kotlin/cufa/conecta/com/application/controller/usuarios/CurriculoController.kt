@@ -31,22 +31,19 @@ class CurriculoController(
         return service.downloadCurriculo(filename)
     }
 
-    @PostMapping("/{userId}/curriculo/upload")
-    fun uploadCurriculoUsuario(
-        @PathVariable userId: Long,
-        @RequestParam("file") file: MultipartFile
-    ): String {
+    @PostMapping("/curriculo/upload")
+    fun uploadCurriculoUsuario(@RequestParam("file") file: MultipartFile): String {
         val filename = service.salvarArquivoCurriculo(file)
         val curriculoUrl = service.gerarUrlArquivo(filename)
 
-        usuarioService.atualizarCurriculoUrl(userId, curriculoUrl)
+        usuarioService.atualizarCurriculoUrl(curriculoUrl)
 
         return curriculoUrl
     }
 
-    @DeleteMapping("/{userId}/curriculo/delete")
-    fun deletarCurriculoUsuario(@PathVariable userId: Long): String {
-        val usuario = usuarioService.mostrarDados(userId)
+    @DeleteMapping("/curriculo/delete")
+    fun deletarCurriculoUsuario(): String {
+        val usuario = usuarioService.mostrarDados()
         val urlAntiga = usuario.curriculoUrl
 
         urlAntiga?.takeIf { it.isNotEmpty() }?.let {
@@ -54,7 +51,7 @@ class CurriculoController(
             service.deletarArquivoFisico(nomeArquivo)
         }
 
-        usuarioService.atualizarCurriculoUrl(userId, null)
+        usuarioService.atualizarCurriculoUrl(null)
 
         return "Currículo deletado com sucesso."
     }

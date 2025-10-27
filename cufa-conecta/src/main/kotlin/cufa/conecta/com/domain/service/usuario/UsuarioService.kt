@@ -10,5 +10,5 @@ interface UsuarioService {
     fun autenticar(data: Login): UsuarioTokenDto
     fun mostrarDados(): UsuarioResult
     fun atualizar(data: Usuario)
-    fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?)
+    fun atualizarCurriculoUrl(curriculoUrl: String?)
 }

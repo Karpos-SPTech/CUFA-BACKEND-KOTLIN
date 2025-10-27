@@ -34,6 +34,10 @@ class UsuarioServiceImpl(
         repository.atualizar(data, email!!)
     }
 
-    override fun atualizarCurriculoUrl(userId: Long, curriculoUrl: String?) =
-        repository.atualizarCurriculoUrl(userId, curriculoUrl)
+    override fun atualizarCurriculoUrl(curriculoUrl: String?) {
+        val auth = SecurityContextHolder.getContext().authentication
+        val email = auth?.name
+
+        repository.atualizarCurriculoUrl(email!!, curriculoUrl)
+    }
 }
