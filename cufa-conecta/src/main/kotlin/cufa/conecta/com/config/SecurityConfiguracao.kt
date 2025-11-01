@@ -3,8 +3,6 @@ package cufa.conecta.com.config
 import cufa.conecta.com.resources.AutenticacaoRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -43,13 +41,14 @@ class SecurityConfiguracao(
                 AntPathRequestMatcher("/roles/**"),
                 AntPathRequestMatcher("/error/**"),
                 AntPathRequestMatcher("/actuator/**"),
-                AntPathRequestMatcher("/empresas/**"),
-                AntPathRequestMatcher("/funcionarios/**"),
-                AntPathRequestMatcher("/publicacoes/**"),
-                AntPathRequestMatcher("/curriculos/**"),
-                AntPathRequestMatcher("/candidaturas/**"),
-                AntPathRequestMatcher("/experiencias/**"),
-                AntPathRequestMatcher("/usuarios/**")
+                AntPathRequestMatcher("/api/**"),
+                AntPathRequestMatcher("/api/empresas/**"),
+                AntPathRequestMatcher("/api/funcionarios/**"),
+                AntPathRequestMatcher("/api/publicacoes/**"),
+                AntPathRequestMatcher("/api/curriculos/**"),
+                AntPathRequestMatcher("/api/candidaturas/**"),
+                AntPathRequestMatcher("/api/experiencias/**"),
+                AntPathRequestMatcher("/api/usuarios/**")
             )
     }
 
