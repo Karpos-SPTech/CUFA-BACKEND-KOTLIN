@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/empresas")
+@RequestMapping("/api/empresas")
 class EmpresaController(
     private val service: EmpresaService
 ) {

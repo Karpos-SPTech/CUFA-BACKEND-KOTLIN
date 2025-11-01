@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 class UsuarioController(
     private val service: UsuarioService
 ) {
