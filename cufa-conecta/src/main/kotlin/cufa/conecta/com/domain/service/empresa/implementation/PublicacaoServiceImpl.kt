@@ -39,7 +39,7 @@ class PublicacaoServiceImpl(
 
     override fun findById(id: Long): Publicacao = repository.findById(id)
 
-    override fun editarPublicacao(id: Long, data: Publicacao) {
+    override fun editarPublicacao(data: Publicacao) {
         val auth = SecurityContextHolder.getContext().authentication
 
         val email = auth?.name

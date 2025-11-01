@@ -70,6 +70,7 @@ class UsuarioController(
 
         return result
     }
+
     @PutMapping
     fun incrementarDadosDoUsuarios(@RequestBody @Valid dto: UsuarioUpdateRequestDto) {
         val usuarioAtualizado = dto.toModel()

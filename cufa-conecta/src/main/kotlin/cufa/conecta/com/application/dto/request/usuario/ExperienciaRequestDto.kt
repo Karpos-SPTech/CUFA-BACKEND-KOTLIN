@@ -20,4 +20,12 @@ data class ExperienciaRequestDto(
         dtInicio = dtInicio,
         dtFim = dtFim
     )
+
+    fun toUpdateModel(id: Long) = Experiencia(
+        id = id,
+        cargo = cargo,
+        empresa = empresa,
+        dtInicio = dtInicio,
+        dtFim = dtFim
+    )
 }

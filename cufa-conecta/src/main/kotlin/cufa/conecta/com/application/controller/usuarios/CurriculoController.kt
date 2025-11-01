@@ -31,8 +31,8 @@ class CurriculoController(
         return service.downloadCurriculo(filename)
     }
 
-    @PostMapping("/curriculo/upload")
-    fun uploadCurriculoUsuario(@RequestParam("file") file: MultipartFile): String {
+    @PostMapping("/update")
+    fun updateCurriculoUsuario(@RequestParam("file") file: MultipartFile): String {
         val filename = service.salvarArquivoCurriculo(file)
         val curriculoUrl = service.gerarUrlArquivo(filename)
 
@@ -41,7 +41,7 @@ class CurriculoController(
         return curriculoUrl
     }
 
-    @DeleteMapping("/curriculo/delete")
+    @DeleteMapping
     fun deletarCurriculoUsuario(): String {
         val usuario = usuarioService.mostrarDados()
         val urlAntiga = usuario.curriculoUrl
