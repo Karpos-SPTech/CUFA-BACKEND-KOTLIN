@@ -71,7 +71,7 @@ class CurriculoController(
         return "Currículo deletado com sucesso."
     }
 
-    @PostMapping("/curriculo/analisar")
+    @PostMapping("/analisar")
     @ResponseStatus(HttpStatus.OK)
     fun analisarCurriculo(@RequestBody file: MultipartFile): AnaliseCurriculoResponseDto {
         return service.analisarCurriculo(file)
