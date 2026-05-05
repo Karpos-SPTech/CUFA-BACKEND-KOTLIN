@@ -81,18 +81,19 @@ class CurriculoServiceImpl(
         val prompt = """
         Você é um especialista em recrutamento e análise de currículos.
 
-        Sua tarefa:
-        - Analise o currículo abaixo
-        - Identifique pontos de melhoria
-        - Sugira melhorias práticas
-        - Retorne SOMENTE um JSON
+        Responda APENAS em JSON válido.
 
-        Formato esperado:
+        NÃO escreva texto fora do JSON.
+        NÃO use comentários.
+        NÃO use objetos sem chave:valor.
+        
+        Formato EXATO:
+        
         {
-          "resumo": "Breve avaliação geral",
-          "pontosFortes": ["..."],
-          "pontosMelhoria": ["..."],
-          "sugestoes": ["..."]
+          "resumo": "string",
+          "pontosFortes": ["string"],
+          "pontosMelhoria": ["string"],
+          "sugestoes": ["string"]
         }
 
         Currículo:

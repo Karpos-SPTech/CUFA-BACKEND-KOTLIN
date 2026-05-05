@@ -17,7 +17,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-
+  openai:
+    api-key: ${OPENAI_API_KEY}
 jwt:
   # Tempo de vida do JWT em segundos (604800 = 7 dias).
   validity: 604800

@@ -71,12 +71,9 @@ class CurriculoController(
         return "Currículo deletado com sucesso."
     }
 
-    @PostMapping(
-        "/curriculo/analisar",
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
-    )
+    @PostMapping("/analisar")
     @ResponseStatus(HttpStatus.OK)
-    fun analisarCurriculo(@RequestParam("file") file: MultipartFile): AnaliseCurriculoResponseDto {
+    fun analisarCurriculo(@RequestBody file: MultipartFile): AnaliseCurriculoResponseDto {
         return service.analisarCurriculo(file)
     }
 }
