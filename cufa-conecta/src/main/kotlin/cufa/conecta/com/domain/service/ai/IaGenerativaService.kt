@@ -1,31 +1,52 @@
 package cufa.conecta.com.domain.service.ai
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class IaGenerativaService(
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
+    @Value("\${openai.api-key}") private val apiKey: String
 ) {
 
     private val webClient = builder
-        .baseUrl("http://localhost:11434")
+        .baseUrl("https://api.openai.com/v1")
+        .defaultHeader("Authorization", "Bearer $apiKey")
         .build()
 
-    fun gerarResposta(prompt: String): String? {
+    fun gerarResposta(prompt: String): String {
+
         val body = mapOf(
-            "model" to "phi3",
-            "prompt" to prompt,
-            "stream" to false
+            "model" to "gpt-5.4-mini",
+            "input" to prompt
         )
 
         val response = webClient.post()
-            .uri("/api/generate")
+            .uri("/responses")
             .bodyValue(body)
             .retrieve()
             .bodyToMono(Map::class.java)
-            .block()
+            .block() ?: throw RuntimeException("Resposta nula da OpenAI")
 
-        return response?.get("response") as? String
+        return extrairTexto(response)
+    }
+
+    private fun extrairTexto(response: Map<*, *>?): String {
+        val output = response?.get("output") as? List<*> ?: return ""
+
+        val textos = output.mapNotNull { item ->
+            val map = item as? Map<*, *>
+            val content = map?.get("content") as? List<*>
+
+            content?.mapNotNull { c ->
+                val cMap = c as? Map<*, *>
+                cMap?.get("text") as? String
+            }
+        }.flatten()
+
+        return textos.joinToString("\n").ifBlank {
+            throw RuntimeException("Resposta vazia da OpenAI")
+        }
     }
 }

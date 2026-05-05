@@ -17,7 +17,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-
+  openai:
+    api-key: ${OPENAI_API_KEY}
 jwt:
   validity: 86400
   secret: RXhpc3RlIHVtYSB0ZW9yaWEgcXVlIGRpeiBxdWUsIHNlIHVtIGRpYSBhbGd16W0gZGVzY29icmlyIGV4YX]
