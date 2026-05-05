@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/CUFA-BACKEND-KOTLIN.iml" filepath="$PROJECT_DIR$/.idea/CUFA-BACKEND-KOTLIN.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cufa-conecta.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cufa-conecta.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cufa-conecta.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cufa-conecta.test.iml" />
     </modules>
   </component>
 </project>
