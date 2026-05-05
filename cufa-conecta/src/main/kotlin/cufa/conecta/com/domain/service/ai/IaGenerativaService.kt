@@ -14,7 +14,7 @@ class IaGenerativaService(
 
     fun gerarResposta(prompt: String): String? {
         val body = mapOf(
-            "model" to "llama3",
+            "model" to "phi3",
             "prompt" to prompt,
             "stream" to false
         )
