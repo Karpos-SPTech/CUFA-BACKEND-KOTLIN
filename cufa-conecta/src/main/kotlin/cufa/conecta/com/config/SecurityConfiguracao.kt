@@ -58,6 +58,7 @@ class SecurityConfiguracao(
                 it.requestMatchers(HttpMethod.POST, "/empresas").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/empresas/login").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/empresas/logout").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/candidaturas/**").permitAll()
                 // Listagem pública de vagas (somente GET na raiz; /publicacoes/empresa exige JWT de empresa)
                 it.requestMatchers(HttpMethod.GET, "/publicacoes").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/empresas/all").permitAll()

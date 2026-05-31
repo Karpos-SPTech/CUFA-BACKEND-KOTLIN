@@ -2,7 +2,9 @@ package cufa.conecta.com.application.controller.usuarios
 
 import cufa.conecta.com.application.dto.request.usuario.CandidaturaRequestDto
 import cufa.conecta.com.application.dto.response.empresa.PublicacaoResponseDto
+import cufa.conecta.com.application.dto.response.ia.usuario.InsightDashboardDto
 import cufa.conecta.com.application.dto.response.usuario.CandidaturaResponseDto
+import cufa.conecta.com.domain.service.ai.DashboardService
 import cufa.conecta.com.domain.service.usuario.CandidaturaService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -11,7 +13,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/candidaturas")
 class CandidaturaController(
-    private val service: CandidaturaService
+    private val service: CandidaturaService,
+    private val dashboardService: DashboardService
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -49,5 +52,12 @@ class CandidaturaController(
         val result = PublicacaoResponseDto.listOf(listaDeVagasCandidatas)
 
         return result
+    }
+
+
+    @GetMapping("/insights")
+    fun obterInsights(
+    ): List<InsightDashboardDto> {
+        return dashboardService.gerarInsightsCandidato()
     }
 }

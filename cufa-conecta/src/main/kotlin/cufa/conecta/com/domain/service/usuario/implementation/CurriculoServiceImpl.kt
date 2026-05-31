@@ -100,7 +100,7 @@ class CurriculoServiceImpl(
         $textoCurriculo
     """
 
-        val resposta = iaService.gerarResposta(prompt) ?: throw CreateInternalServerError("IA indisponível")
+        val resposta = iaService.gerarResposta(prompt)
 
         val respostaLimpa = extrairJson(resposta)
 
