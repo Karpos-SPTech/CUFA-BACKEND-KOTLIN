@@ -13,7 +13,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 @Service
 class IaGenerativaService(
     builder: WebClient.Builder,
-    @Value("\${openai.api-key}") private val apiKey: String,
+    @Value("\${openai.api-key:}") private val apiKey: String,
     private val objectMapper: ObjectMapper
 ) {
 

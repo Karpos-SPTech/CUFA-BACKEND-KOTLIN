@@ -95,13 +95,26 @@ class UsuarioServiceImpl(
         """
 
         val respostaString = iaService.gerarResposta(prompt)
-        val recomendacoesIa: List<RecomendacaoDto>? = respostaString?.let { json ->
+
+        // A IA é usada só para reordenar: os dados (idEmpresa etc.) sempre vêm das vagas confiáveis,
+        // evitando idEmpresa=0 quando a IA devolve o JSON em formato diferente do DTO.
+        val ordemIa: List<Long>? = respostaString?.let { json ->
             runCatching {
-                objectMapper.readValue(json, object : TypeReference<List<RecomendacaoDto>>() {})
+                objectMapper.readValue(json, object : TypeReference<List<RecomendacaoIaItem>>() {})
+                    .map { it.id }
             }.getOrNull()
         }
 
-        val recomendacoes = recomendacoesIa ?: mapearVagasSemIa(vagas)
+        val vagasPorId = vagas.associateBy { it.publicacaoId }
+        val recomendacoes = ordemIa
+            ?.mapNotNull { vagasPorId[it] }
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { reordenadas ->
+                val idsReordenados = reordenadas.map { it.publicacaoId }.toSet()
+                val faltantes = vagas.filter { it.publicacaoId !in idsReordenados }
+                mapearVagasSemIa(reordenadas + faltantes)
+            }
+            ?: mapearVagasSemIa(vagas)
 
         return VagasRecomendadasResponseDto(
             recomendacoes = recomendacoes,
@@ -109,6 +122,9 @@ class UsuarioServiceImpl(
             raioKm = RAIO_KM_RECOMENDACAO
         )
     }
+
+    /** Só para ler a ordem sugerida pela IA; os demais campos são ignorados. */
+    private data class RecomendacaoIaItem(val id: Long)
 
     private fun mapearVagasSemIa(vagas: List<VagaProximaDto>): List<RecomendacaoDto> =
         vagas.map {
