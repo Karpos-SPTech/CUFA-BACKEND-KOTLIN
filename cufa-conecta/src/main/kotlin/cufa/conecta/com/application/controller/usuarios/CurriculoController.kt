@@ -73,7 +73,7 @@ class CurriculoController(
 
     @PostMapping("/analisar")
     @ResponseStatus(HttpStatus.OK)
-    fun analisarCurriculo(@RequestBody file: MultipartFile): AnaliseCurriculoResponseDto {
+    fun analisarCurriculo(@RequestParam("file") file: MultipartFile): AnaliseCurriculoResponseDto {
         return service.analisarCurriculo(file)
     }
 }
