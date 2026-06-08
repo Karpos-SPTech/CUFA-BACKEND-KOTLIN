@@ -13,6 +13,7 @@ interface UsuarioDao : JpaRepository<UsuarioEntity, Long> {
     fun findByEmail(email: String?): Optional<UsuarioEntity>
 
     @Modifying
+    @Transactional
     @Query("UPDATE cadastro_usuario user SET user.curriculoUrl = :curriculoUrl WHERE user.id = :id")
     fun atualizarCurriculoUrl(id: Long, curriculoUrl: String?)
 

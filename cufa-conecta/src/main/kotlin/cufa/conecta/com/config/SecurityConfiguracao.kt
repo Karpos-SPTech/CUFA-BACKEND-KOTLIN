@@ -97,8 +97,6 @@ class SecurityConfiguracao(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        // Antes só `localhost:5173` — Expo Web (8081), outras portas e IP da LAN geravam bloqueio no browser.
-        // `allowedOriginPatterns` aceita porta variável; `*` cobre origens não previstas em dev.
         configuration.allowedOriginPatterns = listOf(
             "http://localhost:*",
             "http://127.0.0.1:*",
